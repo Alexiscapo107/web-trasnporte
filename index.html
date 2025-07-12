@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Turismo Piombino - Traslados y Viajes</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+    <style>
+        :root { --primary-color: #00796b; --whatsapp-color: #25D366; --whatsapp-hover-color: #1DAE56; }
+        html { scroll-behavior: smooth; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+        .container { max-width: 1100px; }
+        nav { position: sticky; top: 0; z-index: 1000; background-color: var(--pico-card-background-color); border-bottom: 1px solid var(--pico-card-border-color); padding: 0.5rem 1rem; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        nav ul { margin-bottom: 0; }
+        nav li a[role="button"] { margin-bottom: 0; padding: 5px 10px; }
+        .servicios-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-top: 2rem; }
+        .servicio-card { border: 1px solid var(--pico-muted-border-color); border-radius: var(--pico-border-radius); padding: 1.5rem; text-align: center; transition: transform 0.2s, box-shadow 0.2s; display: flex; flex-direction: column; }
+        .servicio-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
+        .servicio-card .icono { font-size: 2.5rem; color: var(--primary-color); margin-bottom: 1rem; }
+        .servicio-card p { flex-grow: 1; }
+        .servicio-card a[role="button"], .servicio-card button { background-color: var(--primary-color); border-color: var(--primary-color); width: 100%; }
+        #eventos-lista-detallada { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; min-height: 100px; }
+        .evento-card { border: 1px solid var(--pico-muted-border-color); border-radius: var(--pico-border-radius); padding: 1.5rem; display: flex; flex-direction: column; }
+        .evento-card h5 { margin-bottom: 0.5rem; }
+        .evento-card .fecha { color: var(--pico-secondary); margin-bottom: 1rem; }
+        .evento-card .detalle { flex-grow: 1; margin-bottom: 1.5rem; }
+        .evento-card button { background-color: var(--pico-secondary) !important; border-color: var(--pico-secondary) !important; }
+        .evento-card.agotado { background-color: var(--pico-muted-background-color); opacity: 0.7; }
+        .evento-card.agotado button { background-color: var(--pico-muted-border-color) !important; border-color: var(--pico-muted-border-color) !important; color: var(--pico-muted-color); pointer-events: none; }
+        #cotizacion-form-container button { background-color: var(--whatsapp-color); border-color: var(--whatsapp-color); }
+        footer { margin-top: 4rem; padding: 2rem 1rem; border-top: 1px solid var(--pico-muted-border-color); text-align: center; background-color: var(--pico-muted-background-color); }
+        footer a { font-size: 1.5rem; margin: 0 0.5rem; color: var(--pico-secondary); }
+        section { padding-top: 5rem; }
+    </style>
+</head>
+<body>
+    <nav class="container-fluid">
+        <ul><li><strong><a href="#">Turismo Piombino</a></strong></li></ul>
+        <ul><li><a href="#servicios">Servicios</a></li><li><a href="#disponibilidad">Disponibilidad</a></li><li><a href="#contacto" role="button" class="secondary">Contacto</a></li></ul>
+    </nav>
+    <main class="container">
+        <section id="servicios">
+            <h2 style="text-align:center;">Nuestros Servicios de Transporte</h2>
+            <div class="servicios-grid">
+                <article class="servicio-card"><div class="icono"><i class="fa-solid fa-ticket"></i></div><h5>Traslados a Eventos</h5><p>Te llevamos a los recitales y shows más importantes. Consultá la lista de próximos eventos y reservá tu lugar.</p><a href="#seccion-eventos-detalles" role="button">Ver Próximos Eventos</a></article>
+                <article class="servicio-card"><div class="icono"><i class="fa-solid fa-martini-glass-citrus"></i></div><h5>Eventos Sociales</h5><p>Traslados para bodas, cumpleaños y celebraciones. Puntualidad y confort para tus invitados.</p><button onclick="abrirModalCotizacion('Eventos Sociales')">Cotizar</button></article>
+                <article class="servicio-card"><div class="icono"><i class="fa-solid fa-briefcase"></i></div><h5>Eventos Corporativos</h5><p>Logística de transporte para seminarios, team building y personal de empresa.</p><button onclick="abrirModalCotizacion('Eventos Corporativos')">Cotizar</button></article>
+                <article class="servicio-card"><div class="icono"><i class="fa-solid fa-van-shuttle"></i></div><h5>Alquiler de Combis/Buses</h5><p>Disponibilidad de vehículos con chofer para viajes y traslados a medida.</p><button onclick="abrirModalCotizacion('Alquiler de Vehículo')">Cotizar</button></article>
+                <article class="servicio-card"><div class="icono"><i class="fa-solid fa-map-location-dot"></i></div><h5>Turismo Receptivo</h5><p>City tours, excursiones y traslados desde/hacia aeropuertos para turistas.</p><button onclick="abrirModalCotizacion('Turismo Receptivo')">Cotizar</button></article>
+                <article class="servicio-card"><div class="icono"><i class="fa-solid fa-plane-departure"></i></div><h5>Traslados Aeropuerto</h5><p>Viajes a Ezeiza y Aeroparque. Comenzá o terminá tu viaje de la mejor manera.</p><button onclick="abrirModalCotizacion('Traslado Aeropuerto')">Cotizar</button></article>
+            </div>
+        </section>
+        <hr>
+        <section id="seccion-eventos-detalles">
+            <h3>Próximos Eventos Disponibles</h3>
+            <div id="eventos-lista-detallada"><p aria-busy="true">Cargando eventos desde la planilla...</p></div>
+        </section>
+        <section id="reserva-evento-seccion" style="display: none; padding-top: 2rem;">
+            <h3 id="reserva-evento-titulo"></h3>
+            <form id="reserva-evento-form"><input type="hidden" id="form-evento-seleccionado"><label>Nombre y Apellido <input type="text" id="form-evento-nombre" required></label><label>Cantidad de Pasajeros <input type="number" id="form-evento-pasajeros" min="1" required></label><label>Punto de Partida <input type="text" id="form-evento-partida" required></label><button type="submit">✅ Enviar Consulta por WhatsApp</button></form>
+        </section>
+        <hr>
+        <section id="disponibilidad">
+            <h2>Disponibilidad General</h2>
+            <p>Este calendario muestra mis horarios ocupados. Si el día que necesitas figura libre, no dudes en consultar.</p>
+            <div class="calendar-container"><iframe src="https://calendar.google.com/calendar/embed?src=e7dc2c14d6465b8137e09d3128566ae23a25b3110fc57aee79302fa1990c1552%40group.calendar.google.com&ctz=America%2FArgentina%2FBuenos_Aires" style="border: 0" width="800" height="600" frameborder="0" scrolling="no"></iframe></div>
+        </section>
+    </main>
+    <footer id="contacto">
+      <p><strong>Turismo Piombino © 2025</strong></p>
+      <p>Seguinos en nuestras redes:</p>
+      <a href="https://www.instagram.com/turismo_piombino/" target="_blank" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+      <a href="https://www.facebook.com/leo.piombino" target="_blank" aria-label="Facebook"><i class="fa-brands fa-facebook"></i></a>
+    </footer>
+    <dialog id="modal-cotizacion">
+      <article>
+        <header><button aria-label="Close" rel="prev" onclick="document.getElementById('modal-cotizacion').close()"></button><h4 id="modal-titulo">Solicitud de Cotización</h4></header>
+        <form id="cotizacion-form-container"><input type="hidden" id="form-servicio-tipo"><label>Nombre <input type="text" id="form-servicio-nombre" required></label><label>Teléfono de Contacto <input type="tel" id="form-servicio-telefono" required></label><label>Fecha Estimada <input type="date" id="form-servicio-fecha" required></label><label>Detalles del Viaje <textarea id="form-servicio-detalles" placeholder="Ej: Cantidad de pasajeros, origen, destino, horarios, etc."></textarea></label><button type="submit">Enviar Consulta por WhatsApp</button></form>
+      </article>
+    </dialog>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const telefonoPiombino = "5491123757821";
+    const googleSheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTGqjcBT-GiILtXal_RQqsBrr7HypTsWgyJT8KgmIBa7YnhjyId1TLsDnj3f-1dMA5BF3Op5PF-wQdN/pub?output=csv';
+    let eventos = [];
+    const listaEventosContainer = document.getElementById('eventos-lista-detallada');
+    function csvToArray(csv) {
+        const rows = csv.split(/\r?\n/); const headers = rows[0].split(','); const data = [];
+        for (let i = 1; i < rows.length; i++) { const row = rows[i].split(','); if (row.length === headers.length) { const obj = {}; for (let j = 0; j < headers.length; j++) { obj[headers[j].trim()] = row[j].trim(); } data.push(obj); } }
+        return data;
+    }
+    async function fetchAndRenderEvents() {
+        if (!listaEventosContainer) return;
+        try {
+            const response = await fetch(googleSheetUrl, { cache: 'no-store' });
+            if (!response.ok) { throw new Error(`Error de red: ${response.statusText}`); }
+            const csvText = await response.text();
+            eventos = csvToArray(csvText);
+            listaEventosContainer.innerHTML = ''; 
+            if (eventos.length === 0 || !eventos[0].id) { listaEventosContainer.innerHTML = '<p>No hay eventos programados por el momento.</p>'; return; }
+            eventos.forEach(evento => {
+                if (!evento.id || !evento.nombre) return;
+                const esAgotado = evento.estado === 'agotado';
+                const tarjeta = document.createElement('article');
+                tarjeta.className = `evento-card ${esAgotado ? 'agotado' : ''}`;
+                tarjeta.innerHTML = `<h5>${evento.nombre}</h5><small class="fecha">${evento.fecha}</small><p class="detalle">${evento.detalle}</p><button ${esAgotado ? 'disabled' : ''} onclick="mostrarFormularioEvento(${evento.id})">${esAgotado ? 'Cupos Agotados' : 'Consultar / Reservar'}</button>`;
+                listaEventosContainer.appendChild(tarjeta);
+            });
+        } catch (error) {
+            console.error('Error al cargar los eventos:', error);
+            listaEventosContainer.innerHTML = '<p>Hubo un error al cargar los eventos. Verifique que la planilla esté publicada y compartida correctamente.</p>';
+        }
+    }
+    const seccionReservaEvento = document.getElementById('reserva-evento-seccion');
+    window.mostrarFormularioEvento = function(eventoId) {
+        const evento = eventos.find(e => e.id == eventoId); 
+        if (!evento) return;
+        document.getElementById('reserva-evento-titulo').innerText = `Reserva para: ${evento.nombre}`;
+        document.getElementById('form-evento-seleccionado').value = evento.nombre;
+        seccionReservaEvento.style.display = 'block';
+        seccionReservaEvento.scrollIntoView({ behavior: 'smooth' });
+    }
+    document.getElementById('reserva-evento-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const msg = `¡Hola! Quisiera consultar por el traslado a *${document.getElementById('form-evento-seleccionado').value}*.\n- Nombre: ${document.getElementById('form-evento-nombre').value}\n- Pasajeros: ${document.getElementById('form-evento-pasajeros').value}\n- Partida: ${document.getElementById('form-evento-partida').value}`;
+        window.open(`https://wa.me/${telefonoPiombino}?text=${encodeURIComponent(msg)}`, '_blank');
+    });
+    fetchAndRenderEvents();
+    const modal = document.getElementById('modal-cotizacion');
+    window.abrirModalCotizacion = function(tipoServicio) {
+        document.getElementById('modal-titulo').innerText = `Cotización para ${tipoServicio}`;
+        document.getElementById('form-servicio-tipo').value = tipoServicio;
+        modal.showModal();
+    }
+    document.getElementById('cotizacion-form-container').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const tipo = document.getElementById('form-servicio-tipo').value;
+        const nombre = document.getElementById('form-servicio-nombre').value;
+        const tel = document.getElementById('form-servicio-telefono').value;
+        const fecha = document.getElementById('form-servicio-fecha').value;
+        const detalles = document.getElementById('form-servicio-detalles').value;
+        const msg = `¡Hola! Quisiera cotizar un servicio de *${tipo}*.\n\n- *Nombre:* ${nombre}\n- *Teléfono:* ${tel}\n- *Fecha Estimada:* ${fecha}\n- *Detalles:* ${detalles}`;
+        window.open(`https://wa.me/${telefonoPiombino}?text=${encodeURIComponent(msg)}`, '_blank');
+        modal.close();
+    });
+});
+</script>
+</body>
+</html>
