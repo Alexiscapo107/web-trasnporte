@@ -82,23 +82,44 @@
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     const telefonoPiombino = "5491123757821";
-    const googleSheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTGqjcBT-GiILtXal_RQqsBrr7HypTsWgyJT8KgmIBa7YnhjyId1TLsDnj3f-1dMA5BF3Op5PF-wQdN/pub?output=csv';
+    const googleSheetEventosUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTGqjcBT-GiILtXal_RQqsBrr7HypTsWgyJT8KgmIBa7YnhjyId1TLsDnj3f-1dMA5BF3Op5PF-wQdN/pub?output=csv';
+    
+    // ▼▼▼ URL DEL SCRIPT "CARTERO DIGITAL" (YA CONFIGURADA) ▼▼▼
+    const scriptCarteroUrl = 'https://script.google.com/macros/s/AKfycbwKpO5eAfa1xR8ITcQo8dCfGWCCq23a1BuC3simU84Orf_o7iGLH4VaxUOO0kZuKwUKxA/exec';
+    
     let eventos = [];
     const listaEventosContainer = document.getElementById('eventos-lista-detallada');
+    
     function csvToArray(csv) {
-        const rows = csv.split(/\r?\n/); const headers = rows[0].split(','); const data = [];
-        for (let i = 1; i < rows.length; i++) { const row = rows[i].split(','); if (row.length === headers.length) { const obj = {}; for (let j = 0; j < headers.length; j++) { obj[headers[j].trim()] = row[j].trim(); } data.push(obj); } }
+        const lines = csv.split(/\r?\n/);
+        const headers = lines[0].split(',');
+        const data = [];
+        const regex = /,(?=(?:(?:[^"]*"){2})*[^"]*$)/;
+        for (let i = 1; i < lines.length; i++) {
+            if (!lines[i]) continue;
+            const values = lines[i].split(regex);
+            if (values.length === headers.length) {
+                const obj = {};
+                for (let j = 0; j < headers.length; j++) {
+                    let value = values[j];
+                    if (value.startsWith('"') && value.endsWith('"')) { value = value.slice(1, -1); }
+                    obj[headers[j].trim()] = value.trim();
+                }
+                data.push(obj);
+            }
+        }
         return data;
     }
+    
     async function fetchAndRenderEvents() {
         if (!listaEventosContainer) return;
         try {
-            const response = await fetch(googleSheetUrl, { cache: 'no-store' });
+            const response = await fetch(googleSheetEventosUrl, { cache: 'no-store' });
             if (!response.ok) { throw new Error(`Error de red: ${response.statusText}`); }
             const csvText = await response.text();
             eventos = csvToArray(csvText);
             listaEventosContainer.innerHTML = ''; 
-            if (eventos.length === 0 || !eventos[0].id) { listaEventosContainer.innerHTML = '<p>No hay eventos programados por el momento.</p>'; return; }
+            if (eventos.length === 0) { listaEventosContainer.innerHTML = '<p>No hay eventos programados por el momento.</p>'; return; }
             eventos.forEach(evento => {
                 if (!evento.id || !evento.nombre) return;
                 const esAgotado = evento.estado === 'agotado';
@@ -112,6 +133,23 @@ document.addEventListener('DOMContentLoaded', () => {
             listaEventosContainer.innerHTML = '<p>Hubo un error al cargar los eventos. Verifique que la planilla esté publicada y compartida correctamente.</p>';
         }
     }
+
+    function enviarDatosAlSheet(formData) {
+        fetch(scriptCarteroUrl, {
+            method: 'POST',
+            body: formData
+        }).then(response => response.json())
+          .then(data => {
+              if(data.result === 'success') {
+                  console.log("Pedido enviado a la planilla con éxito.");
+              } else {
+                  console.error("Error al enviar el pedido a la planilla:", data.error);
+              }
+          }).catch(error => {
+              console.error("Error de conexión con el script:", error);
+          });
+    }
+
     const seccionReservaEvento = document.getElementById('reserva-evento-seccion');
     window.mostrarFormularioEvento = function(eventoId) {
         const evento = eventos.find(e => e.id == eventoId); 
@@ -121,29 +159,55 @@ document.addEventListener('DOMContentLoaded', () => {
         seccionReservaEvento.style.display = 'block';
         seccionReservaEvento.scrollIntoView({ behavior: 'smooth' });
     }
+    
     document.getElementById('reserva-evento-form').addEventListener('submit', (e) => {
         e.preventDefault();
-        const msg = `¡Hola! Quisiera consultar por el traslado a *${document.getElementById('form-evento-seleccionado').value}*.\n- Nombre: ${document.getElementById('form-evento-nombre').value}\n- Pasajeros: ${document.getElementById('form-evento-pasajeros').value}\n- Partida: ${document.getElementById('form-evento-partida').value}`;
+        const formData = new FormData();
+        const eventoNombre = document.getElementById('form-evento-seleccionado').value;
+        const nombreCliente = document.getElementById('form-evento-nombre').value;
+        const pasajeros = document.getElementById('form-evento-pasajeros').value;
+        const partida = document.getElementById('form-evento-partida').value;
+        
+        formData.append('tipo_servicio', `Evento: ${eventoNombre}`);
+        formData.append('nombre', nombreCliente);
+        formData.append('detalles', `Pasajeros: ${pasajeros}, Partida: ${partida}`);
+        
+        enviarDatosAlSheet(formData);
+
+        const msg = `¡Hola! Quisiera consultar por el traslado a *${eventoNombre}*.\n- Nombre: ${nombreCliente}\n- Pasajeros: ${pasajeros}\n- Partida: ${partida}`;
         window.open(`https://wa.me/${telefonoPiombino}?text=${encodeURIComponent(msg)}`, '_blank');
     });
+
     fetchAndRenderEvents();
+    
     const modal = document.getElementById('modal-cotizacion');
     window.abrirModalCotizacion = function(tipoServicio) {
         document.getElementById('modal-titulo').innerText = `Cotización para ${tipoServicio}`;
         document.getElementById('form-servicio-tipo').value = tipoServicio;
         modal.showModal();
     }
+
     document.getElementById('cotizacion-form-container').addEventListener('submit', (e) => {
         e.preventDefault();
-        const tipo = document.getElementById('form-servicio-tipo').value;
-        const nombre = document.getElementById('form-servicio-nombre').value;
-        const tel = document.getElementById('form-servicio-telefono').value;
-        const fecha = document.getElementById('form-servicio-fecha').value;
-        const detalles = document.getElementById('form-servicio-detalles').value;
-        const msg = `¡Hola! Quisiera cotizar un servicio de *${tipo}*.\n\n- *Nombre:* ${nombre}\n- *Teléfono:* ${tel}\n- *Fecha Estimada:* ${fecha}\n- *Detalles:* ${detalles}`;
+        const form = e.target;
+        const formData = new FormData();
+        formData.append('tipo_servicio', form.querySelector('#form-servicio-tipo').value);
+        formData.append('nombre', form.querySelector('#form-servicio-nombre').value);
+        formData.append('telefono', form.querySelector('#form-servicio-telefono').value);
+        formData.append('fecha_estimada', form.querySelector('#form-servicio-fecha').value);
+        formData.append('detalles', form.querySelector('#form-servicio-detalles').value);
+        
+        enviarDatosAlSheet(formData);
+
+        const msg = `¡Hola! Quisiera cotizar un servicio de *${formData.get('tipo_servicio')}*.\n\n- *Nombre:* ${formData.get('nombre')}\n- *Teléfono:* ${formData.get('telefono')}\n- *Fecha Estimada:* ${formData.get('fecha_estimada')}\n- *Detalles:* ${formData.get('detalles')}`;
         window.open(`https://wa.me/${telefonoPiombino}?text=${encodeURIComponent(msg)}`, '_blank');
+        
         modal.close();
     });
+});
+</script>
+</body>
+</html>
 });
 </script>
 </body>
