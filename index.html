@@ -20,15 +20,10 @@
         .servicio-card .icono { font-size: 2.5rem; color: var(--primary-color); margin-bottom: 1rem; }
         .servicio-card p { flex-grow: 1; }
         .servicio-card a[role="button"], .servicio-card button { background-color: var(--primary-color); border-color: var(--primary-color); width: 100%; }
-        #eventos-lista-detallada { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; min-height: 100px; }
-        .evento-card { border: 1px solid var(--pico-muted-border-color); border-radius: var(--pico-border-radius); padding: 1.5rem; display: flex; flex-direction: column; }
-        .evento-card h5 { margin-bottom: 0.5rem; }
-        .evento-card .fecha { color: var(--pico-secondary); margin-bottom: 1rem; }
-        .evento-card .detalle { flex-grow: 1; margin-bottom: 1.5rem; }
-        .evento-card button { background-color: var(--pico-secondary) !important; border-color: var(--pico-secondary) !important; }
-        .evento-card.agotado { background-color: var(--pico-muted-background-color); opacity: 0.7; }
-        .evento-card.agotado button { background-color: var(--pico-muted-border-color) !important; border-color: var(--pico-muted-border-color) !important; color: var(--pico-muted-color); pointer-events: none; }
-        #cotizacion-form-container button { background-color: var(--whatsapp-color); border-color: var(--whatsapp-color); }
+        #cotizacion-form-container .campo-especifico { display: none; } /* Oculta campos específicos por defecto */
+        .punto-recogida { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; }
+        .punto-recogida input { flex-grow: 1; }
+        .punto-recogida button { width: auto; padding: 0 0.75rem; line-height: 1.5rem; background-color: var(--pico-muted-background-color); color: var(--pico-muted-color); border: 1px solid var(--pico-muted-border-color); }
         footer { margin-top: 4rem; padding: 2rem 1rem; border-top: 1px solid var(--pico-muted-border-color); text-align: center; background-color: var(--pico-muted-background-color); }
         footer a { font-size: 1.5rem; margin: 0 0.5rem; color: var(--pico-secondary); }
         section { padding-top: 5rem; }
@@ -37,34 +32,27 @@
 <body>
     <nav class="container-fluid">
         <ul><li><strong><a href="#">Turismo Piombino</a></strong></li></ul>
-        <ul><li><a href="#servicios">Servicios</a></li><li><a href="#disponibilidad">Disponibilidad</a></li><li><a href="#contacto" role="button" class="secondary">Contacto</a></li></ul>
+        <ul><li><a href="#servicios">Servicios</a></li><li><a href="#disponibilidad">Disponibilidad</a></li></ul>
     </nav>
     <main class="container">
         <section id="servicios">
             <h2 style="text-align:center;">Nuestros Servicios de Transporte</h2>
             <div class="servicios-grid">
-                <article class="servicio-card"><div class="icono"><i class="fa-solid fa-ticket"></i></div><h5>Traslados a Eventos</h5><p>Te llevamos a los recitales y shows más importantes. Consultá la lista de próximos eventos y reservá tu lugar.</p><a href="#seccion-eventos-detalles" role="button">Ver Próximos Eventos</a></article>
-                <article class="servicio-card"><div class="icono"><i class="fa-solid fa-martini-glass-citrus"></i></div><h5>Eventos Sociales</h5><p>Traslados para bodas, cumpleaños y celebraciones. Puntualidad y confort para tus invitados.</p><button onclick="abrirModalCotizacion('Eventos Sociales')">Cotizar</button></article>
-                <article class="servicio-card"><div class="icono"><i class="fa-solid fa-briefcase"></i></div><h5>Eventos Corporativos</h5><p>Logística de transporte para seminarios, team building y personal de empresa.</p><button onclick="abrirModalCotizacion('Eventos Corporativos')">Cotizar</button></article>
-                <article class="servicio-card"><div class="icono"><i class="fa-solid fa-van-shuttle"></i></div><h5>Alquiler de Combis/Buses</h5><p>Disponibilidad de vehículos con chofer para viajes y traslados a medida.</p><button onclick="abrirModalCotizacion('Alquiler de Vehículo')">Cotizar</button></article>
-                <article class="servicio-card"><div class="icono"><i class="fa-solid fa-map-location-dot"></i></div><h5>Turismo Receptivo</h5><p>City tours, excursiones y traslados desde/hacia aeropuertos para turistas.</p><button onclick="abrirModalCotizacion('Turismo Receptivo')">Cotizar</button></article>
-                <article class="servicio-card"><div class="icono"><i class="fa-solid fa-plane-departure"></i></div><h5>Traslados Aeropuerto</h5><p>Viajes a Ezeiza y Aeroparque. Comenzá o terminá tu viaje de la mejor manera.</p><button onclick="abrirModalCotizacion('Traslado Aeropuerto')">Cotizar</button></article>
+                <article class="servicio-card"><div class="icono"><i class="fa-solid fa-ticket"></i></div><h5>Traslados a Eventos</h5><p>Recitales, festivales y más. Viaja en grupo de forma segura.</p><button onclick="abrirModalCotizacion('Recital')">Cotizar</button></article>
+                <article class="servicio-card"><div class="icono"><i class="fa-solid fa-martini-glass-citrus"></i></div><h5>Eventos Sociales</h5><p>Casamientos, cumpleaños y celebraciones.</p><button onclick="abrirModalCotizacion('Evento Social')">Cotizar</button></article>
+                <article class="servicio-card"><div class="icono"><i class="fa-solid fa-briefcase"></i></div><h5>Eventos Corporativos</h5><p>Transporte para seminarios, jornadas y team building.</p><button onclick="abrirModalCotizacion('Evento Corporativo')">Cotizar</button></article>
+                <article class="servicio-card"><div class="icono"><i class="fa-solid fa-plane-departure"></i></div><h5>Traslados Aeropuerto</h5><p>Viajes a Ezeiza y Aeroparque. Puntualidad y confort.</p><button onclick="abrirModalCotizacion('Aeropuerto')">Cotizar</button></article>
+                <article class="servicio-card"><div class="icono"><i class="fa-solid fa-van-shuttle"></i></div><h5>Viajes Privados</h5><p>Alquiler de vehículos con chofer para el destino que necesites.</p><button onclick="abrirModalCotizacion('Viaje Privado')">Cotizar</button></article>
+                <article class="servicio-card"><div class="icono"><i class="fa-solid fa-earth-americas"></i></div><h5>Larga Distancia</h5><p>Servicios de larga distancia. Consultá por tu próximo destino.</p><button onclick="abrirModalCotizacion('Larga Distancia')">Cotizar</button></article>
             </div>
-        </section>
-        <hr>
-        <section id="seccion-eventos-detalles">
-            <h3>Próximos Eventos Disponibles</h3>
-            <div id="eventos-lista-detallada"><p aria-busy="true">Cargando eventos desde la planilla...</p></div>
-        </section>
-        <section id="reserva-evento-seccion" style="display: none; padding-top: 2rem;">
-            <h3 id="reserva-evento-titulo"></h3>
-            <form id="reserva-evento-form"><input type="hidden" id="form-evento-seleccionado"><label>Nombre y Apellido <input type="text" id="form-evento-nombre" required></label><label>Cantidad de Pasajeros <input type="number" id="form-evento-pasajeros" min="1" required></label><label>Punto de Partida <input type="text" id="form-evento-partida" required></label><button type="submit">✅ Enviar Consulta por WhatsApp</button></form>
         </section>
         <hr>
         <section id="disponibilidad">
             <h2>Disponibilidad General</h2>
-            <p>Este calendario muestra mis horarios ocupados. Si el día que necesitas figura libre, no dudes en consultar.</p>
-            <div class="calendar-container"><iframe src="https://calendar.google.com/calendar/embed?src=e7dc2c14d6465b8137e09d3128566ae23a25b3110fc57aee79302fa1990c1552%40group.calendar.google.com&ctz=America%2FArgentina%2FBuenos_Aires" style="border: 0" width="800" height="600" frameborder="0" scrolling="no"></iframe></div>
+            <p>Este calendario muestra los bloques de tiempo ocupados. Si tu fecha está libre, ¡no dudes en consultar!</p>
+            <div class="calendar-container" style="position: relative; padding-bottom: 75%; height: 0; overflow: hidden; max-width: 100%;">
+                <iframe src="https://calendar.google.com/calendar/embed?src=e7dc2c14d6465b8137e09d3128566ae23a25b3110fc57aee79302fa1990c1552%40group.calendar.google.com&ctz=America%2FArgentina%2FBuenos_Aires" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;"></iframe>
+            </div>
         </section>
     </main>
     <footer id="contacto">
@@ -73,141 +61,124 @@
       <a href="https://www.instagram.com/turismo_piombino/" target="_blank" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
       <a href="https://www.facebook.com/leo.piombino" target="_blank" aria-label="Facebook"><i class="fa-brands fa-facebook"></i></a>
     </footer>
+
     <dialog id="modal-cotizacion">
       <article>
-        <header><button aria-label="Close" rel="prev" onclick="document.getElementById('modal-cotizacion').close()"></button><h4 id="modal-titulo">Solicitud de Cotización</h4></header>
-        <form id="cotizacion-form-container"><input type="hidden" id="form-servicio-tipo"><label>Nombre <input type="text" id="form-servicio-nombre" required></label><label>Teléfono de Contacto <input type="tel" id="form-servicio-telefono" required></label><label>Fecha Estimada <input type="date" id="form-servicio-fecha" required></label><label>Detalles del Viaje <textarea id="form-servicio-detalles" placeholder="Ej: Cantidad de pasajeros, origen, destino, horarios, etc."></textarea></label><button type="submit">Enviar Consulta por WhatsApp</button></form>
+        <header>
+          <button aria-label="Close" rel="prev" onclick="document.getElementById('modal-cotizacion').close()"></button>
+          <h4 id="modal-titulo">Solicitud de Cotización</h4>
+        </header>
+        <form id="cotizacion-form-container">
+            <input type="hidden" id="form-servicio-tipo" name="tipo_servicio">
+            <label>Nombre y Apellido <input type="text" name="nombre_cliente" required></label>
+            <label>Teléfono (con cód. de área) <input type="tel" name="telefono" required></label>
+            <label>Cantidad Total de Pasajeros <input type="number" name="pasajeros_totales" min="1" required></label>
+            
+            <div id="campos-aeropuerto" class="campo-especifico">
+                <label>Aeropuerto
+                    <select name="aeropuerto">
+                        <option value="EZE">Ezeiza (EZE)</option>
+                        <option value="AEP">Aeroparque (AEP)</option>
+                    </select>
+                </label>
+                <label>Fecha y Hora del Vuelo <input type="datetime-local" name="fecha_hora_vuelo"></label>
+            </div>
+            <div id="campos-evento" class="campo-especifico">
+                <label>Dirección del Evento/Destino <input type="text" name="direccion_evento"></label>
+            </div>
+
+            <fieldset>
+                <legend>Puntos de Recogida</legend>
+                <div id="puntos-recogida-container">
+                    <div class="punto-recogida"><input type="text" name="puntos_de_recogida[]" placeholder="Dirección del primer punto" required></div>
+                </div>
+                <button type="button" class="secondary" onclick="anadirPuntoRecogida()">+ Añadir otro punto</button>
+            </fieldset>
+
+            <label>Detalles Adicionales <textarea name="detalles" placeholder="Aclaraciones, horarios, si es ida y vuelta, etc."></textarea></label>
+            <button type="submit">Contactar por WhatsApp</button>
+        </form>
       </article>
     </dialog>
+
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     const telefonoPiombino = "5491123757821";
-    const googleSheetEventosUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTGqjcBT-GiILtXal_RQqsBrr7HypTsWgyJT8KgmIBa7YnhjyId1TLsDnj3f-1dMA5BF3Op5PF-wQdN/pub?output=csv';
-    
-    // ▼▼▼ URL DEL SCRIPT "CARTERO DIGITAL" (YA CONFIGURADA) ▼▼▼
     const scriptCarteroUrl = 'https://script.google.com/macros/s/AKfycbwKpO5eAfa1xR8ITcQo8dCfGWCCq23a1BuC3simU84Orf_o7iGLH4VaxUOO0kZuKwUKxA/exec';
-    
-    let eventos = [];
-    const listaEventosContainer = document.getElementById('eventos-lista-detallada');
-    
-    function csvToArray(csv) {
-        const lines = csv.split(/\r?\n/);
-        const headers = lines[0].split(',');
-        const data = [];
-        const regex = /,(?=(?:(?:[^"]*"){2})*[^"]*$)/;
-        for (let i = 1; i < lines.length; i++) {
-            if (!lines[i]) continue;
-            const values = lines[i].split(regex);
-            if (values.length === headers.length) {
-                const obj = {};
-                for (let j = 0; j < headers.length; j++) {
-                    let value = values[j];
-                    if (value.startsWith('"') && value.endsWith('"')) { value = value.slice(1, -1); }
-                    obj[headers[j].trim()] = value.trim();
-                }
-                data.push(obj);
-            }
-        }
-        return data;
-    }
-    
-    async function fetchAndRenderEvents() {
-        if (!listaEventosContainer) return;
-        try {
-            const response = await fetch(googleSheetEventosUrl, { cache: 'no-store' });
-            if (!response.ok) { throw new Error(`Error de red: ${response.statusText}`); }
-            const csvText = await response.text();
-            eventos = csvToArray(csvText);
-            listaEventosContainer.innerHTML = ''; 
-            if (eventos.length === 0) { listaEventosContainer.innerHTML = '<p>No hay eventos programados por el momento.</p>'; return; }
-            eventos.forEach(evento => {
-                if (!evento.id || !evento.nombre) return;
-                const esAgotado = evento.estado === 'agotado';
-                const tarjeta = document.createElement('article');
-                tarjeta.className = `evento-card ${esAgotado ? 'agotado' : ''}`;
-                tarjeta.innerHTML = `<h5>${evento.nombre}</h5><small class="fecha">${evento.fecha}</small><p class="detalle">${evento.detalle}</p><button ${esAgotado ? 'disabled' : ''} onclick="mostrarFormularioEvento(${evento.id})">${esAgotado ? 'Cupos Agotados' : 'Consultar / Reservar'}</button>`;
-                listaEventosContainer.appendChild(tarjeta);
-            });
-        } catch (error) {
-            console.error('Error al cargar los eventos:', error);
-            listaEventosContainer.innerHTML = '<p>Hubo un error al cargar los eventos. Verifique que la planilla esté publicada y compartida correctamente.</p>';
-        }
-    }
-
-    function enviarDatosAlSheet(formData) {
-        fetch(scriptCarteroUrl, {
-            method: 'POST',
-            body: formData
-        }).then(response => response.json())
-          .then(data => {
-              if(data.result === 'success') {
-                  console.log("Pedido enviado a la planilla con éxito.");
-              } else {
-                  console.error("Error al enviar el pedido a la planilla:", data.error);
-              }
-          }).catch(error => {
-              console.error("Error de conexión con el script:", error);
-          });
-    }
-
-    const seccionReservaEvento = document.getElementById('reserva-evento-seccion');
-    window.mostrarFormularioEvento = function(eventoId) {
-        const evento = eventos.find(e => e.id == eventoId); 
-        if (!evento) return;
-        document.getElementById('reserva-evento-titulo').innerText = `Reserva para: ${evento.nombre}`;
-        document.getElementById('form-evento-seleccionado').value = evento.nombre;
-        seccionReservaEvento.style.display = 'block';
-        seccionReservaEvento.scrollIntoView({ behavior: 'smooth' });
-    }
-    
-    document.getElementById('reserva-evento-form').addEventListener('submit', (e) => {
-        e.preventDefault();
-        const formData = new FormData();
-        const eventoNombre = document.getElementById('form-evento-seleccionado').value;
-        const nombreCliente = document.getElementById('form-evento-nombre').value;
-        const pasajeros = document.getElementById('form-evento-pasajeros').value;
-        const partida = document.getElementById('form-evento-partida').value;
-        
-        formData.append('tipo_servicio', `Evento: ${eventoNombre}`);
-        formData.append('nombre', nombreCliente);
-        formData.append('detalles', `Pasajeros: ${pasajeros}, Partida: ${partida}`);
-        
-        enviarDatosAlSheet(formData);
-
-        const msg = `¡Hola! Quisiera consultar por el traslado a *${eventoNombre}*.\n- Nombre: ${nombreCliente}\n- Pasajeros: ${pasajeros}\n- Partida: ${partida}`;
-        window.open(`https://wa.me/${telefonoPiombino}?text=${encodeURIComponent(msg)}`, '_blank');
-    });
-
-    fetchAndRenderEvents();
-    
     const modal = document.getElementById('modal-cotizacion');
+
     window.abrirModalCotizacion = function(tipoServicio) {
         document.getElementById('modal-titulo').innerText = `Cotización para ${tipoServicio}`;
-        document.getElementById('form-servicio-tipo').value = tipoServicio;
+        const form = document.getElementById('cotizacion-form-container');
+        form.reset(); // Limpia el formulario
+        document.getElementById('puntos-recogida-container').innerHTML = '<div class="punto-recogida"><input type="text" name="puntos_de_recogida[]" placeholder="Dirección del primer punto" required></div>'; // Resetea puntos de recogida
+        form.querySelector('#form-servicio-tipo').value = tipoServicio;
+
+        // Oculta todos los campos específicos
+        form.querySelectorAll('.campo-especifico').forEach(el => el.style.display = 'none');
+
+        // Muestra los campos según el tipo de servicio
+        if (tipoServicio === 'Aeropuerto') {
+            document.getElementById('campos-aeropuerto').style.display = 'block';
+        } else if (['Recital', 'Evento Social', 'Evento Corporativo'].includes(tipoServicio)) {
+            document.getElementById('campos-evento').style.display = 'block';
+        }
+        
         modal.showModal();
     }
 
+    window.anadirPuntoRecogida = function() {
+        const container = document.getElementById('puntos-recogida-container');
+        const nuevoPunto = document.createElement('div');
+        nuevoPunto.className = 'punto-recogida';
+        nuevoPunto.innerHTML = `<input type="text" name="puntos_de_recogida[]" placeholder="Siguiente dirección"><button type="button" onclick="this.parentElement.remove()">-</button>`;
+        container.appendChild(nuevoPunto);
+    }
+    
     document.getElementById('cotizacion-form-container').addEventListener('submit', (e) => {
         e.preventDefault();
         const form = e.target;
-        const formData = new FormData();
-        formData.append('tipo_servicio', form.querySelector('#form-servicio-tipo').value);
-        formData.append('nombre', form.querySelector('#form-servicio-nombre').value);
-        formData.append('telefono', form.querySelector('#form-servicio-telefono').value);
-        formData.append('fecha_estimada', form.querySelector('#form-servicio-fecha').value);
-        formData.append('detalles', form.querySelector('#form-servicio-detalles').value);
+        const formData = new FormData(form);
         
-        enviarDatosAlSheet(formData);
+        // Junta todos los puntos de recogida en un solo string
+        const puntos = Array.from(form.querySelectorAll('input[name="puntos_de_recogida[]"]'))
+                            .map(input => input.value.trim())
+                            .filter(value => value !== '')
+                            .join(' | '); // Separados por una barra vertical
+        
+        const dataParaSheet = new FormData();
+        dataParaSheet.append('tipo_servicio', formData.get('tipo_servicio'));
+        dataParaSheet.append('nombre_cliente', formData.get('nombre_cliente'));
+        dataParaSheet.append('telefono', formData.get('telefono'));
+        dataParaSheet.append('pasajeros_totales', formData.get('pasajeros_totales'));
+        dataParaSheet.append('puntos_de_recogida', puntos);
+        dataParaSheet.append('fecha_hora_vuelo', formData.get('fecha_hora_vuelo') || '');
+        dataParaSheet.append('aeropuerto', formData.get('aeropuerto') || '');
+        dataParaSheet.append('direccion_evento', formData.get('direccion_evento') || '');
+        dataParaSheet.append('detalles', formData.get('detalles'));
+        
+        // Tarea 1: Enviar datos a la planilla
+        fetch(scriptCarteroUrl, { method: 'POST', body: dataParaSheet })
+            .catch(error => console.error("Error al enviar a la planilla:", error));
 
-        const msg = `¡Hola! Quisiera cotizar un servicio de *${formData.get('tipo_servicio')}*.\n\n- *Nombre:* ${formData.get('nombre')}\n- *Teléfono:* ${formData.get('telefono')}\n- *Fecha Estimada:* ${formData.get('fecha_estimada')}\n- *Detalles:* ${formData.get('detalles')}`;
-        window.open(`https://wa.me/${telefonoPiombino}?text=${encodeURIComponent(msg)}`, '_blank');
+        // Tarea 2: Abrir WhatsApp
+        let msg = `¡Hola! Quisiera cotizar un servicio de *${formData.get('tipo_servicio')}*.\n` +
+                  `- Nombre: ${formData.get('nombre_cliente')}\n` +
+                  `- Teléfono: ${formData.get('telefono')}\n` +
+                  `- Cantidad de Pasajeros: ${formData.get('pasajeros_totales')}\n` +
+                  `- Puntos de Recogida: ${puntos.replace(/ \| /g, ', ')}\n`;
+
+        if (formData.get('tipo_servicio') === 'Aeropuerto') {
+            msg += `- Aeropuerto: ${formData.get('aeropuerto')}\n- Vuelo (Fecha/Hora): ${formData.get('fecha_hora_vuelo')}\n`;
+        }
+        if (['Recital', 'Evento Social', 'Evento Corporativo'].includes(formData.get('tipo_servicio'))) {
+            msg += `- Dirección del Evento: ${formData.get('direccion_evento')}\n`;
+        }
+        msg += `- Detalles: ${formData.get('detalles')}`;
         
+        window.open(`https://wa.me/${telefonoPiombino}?text=${encodeURIComponent(msg)}`, '_blank');
         modal.close();
     });
-});
-</script>
-</body>
-</html>
 });
 </script>
 </body>
