@@ -13,6 +13,7 @@
         .container { max-width: 1100px; }
         nav { position: sticky; top: 0; z-index: 1000; background-color: var(--pico-card-background-color); border-bottom: 1px solid var(--pico-card-border-color); padding: 0.5rem 1rem; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         nav ul { margin-bottom: 0; }
+        nav li a[role="button"] { margin-bottom: 0; padding: 5px 10px; }
         .servicios-grid, .evento-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-top: 2rem; }
         .servicio-card, .evento-card { border: 1px solid var(--pico-muted-border-color); border-radius: var(--pico-border-radius); padding: 0; display: flex; flex-direction: column; overflow: hidden; transition: transform 0.2s, box-shadow 0.2s; }
         .servicio-card:hover, .evento-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
@@ -159,10 +160,15 @@ document.addEventListener('DOMContentLoaded', () => {
     window.abrirModalCotizacion = function(evento) {
         form.reset();
         document.getElementById('puntos-recogida-container').innerHTML = '<div class="punto-recogida"><input type="text" name="puntos_de_recogida[]" placeholder="Dirección del primer punto" required></div>';
+        
+        // Llena el título y los campos ocultos con la info.
+        // Si el evento no tiene 'id', es un servicio genérico.
+        const esEventoEspecifico = !!evento.id;
         document.getElementById('modal-titulo').innerText = `Cotización para: ${evento.nombre}`;
         form.querySelector('#form-evento-nombre').value = evento.nombre || 'Servicio Personalizado';
         form.querySelector('#form-evento-fecha').value = evento.fecha || '';
         form.querySelector('#form-evento-lugar').value = evento.lugar || '';
+        
         modal.showModal();
     }
 
