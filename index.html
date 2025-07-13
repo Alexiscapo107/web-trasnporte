@@ -45,6 +45,8 @@
                 <article class="servicio-card"><div class="card-contenido"><div class="icono"><i class="fa-solid fa-martini-glass-citrus"></i></div><h5>Eventos Sociales</h5><p>Casamientos, cumpleaños y celebraciones.</p><button onclick="abrirModalCotizacion({ nombre: 'Evento Social' })">Cotizar</button></div></article>
                 <article class="servicio-card"><div class="card-contenido"><div class="icono"><i class="fa-solid fa-briefcase"></i></div><h5>Eventos Corporativos</h5><p>Transporte para seminarios, jornadas y team building.</p><button onclick="abrirModalCotizacion({ nombre: 'Evento Corporativo' })">Cotizar</button></div></article>
                 <article class="servicio-card"><div class="card-contenido"><div class="icono"><i class="fa-solid fa-plane-departure"></i></div><h5>Traslados Aeropuerto</h5><p>Viajes a Ezeiza y Aeroparque. Puntualidad y confort.</p><button onclick="abrirModalCotizacion({ nombre: 'Aeropuerto' })">Cotizar</button></div></article>
+                <article class="servicio-card"><div class="card-contenido"><div class="icono"><i class="fa-solid fa-van-shuttle"></i></div><h5>Viajes Privados / Alquiler</h5><p>Alquiler de vehículos con chofer para el destino que necesites.</p><button onclick="abrirModalCotizacion({ nombre: 'Viaje Privado' })">Cotizar</button></div></article>
+                <article class="servicio-card"><div class="card-contenido"><div class="icono"><i class="fa-solid fa-earth-americas"></i></div><h5>Larga Distancia</h5><p>Servicios de larga distancia y a países limítrofes. Consultá tu próximo destino.</p><button onclick="abrirModalCotizacion({ nombre: 'Larga Distancia' })">Cotizar</button></div></article>
             </div>
         </section>
         <hr>
@@ -80,10 +82,8 @@
             <input type="hidden" id="form-evento-nombre" name="evento_nombre">
             <input type="hidden" id="form-evento-fecha" name="evento_fecha">
             <input type="hidden" id="form-evento-lugar" name="evento_lugar">
-            
             <label>Nombre y Apellido <input type="text" name="nombre_cliente" required></label>
             <label>Cantidad Total de Pasajeros <input type="number" name="pasajeros_totales" min="1" required></label>
-            
             <div id="campo-tipo-viaje" style="display: none;">
                 <label>Tipo de Viaje
                     <select name="tipo_viaje">
@@ -93,7 +93,6 @@
                     </select>
                 </label>
             </div>
-
             <fieldset>
                 <legend>Puntos de Recogida</legend>
                 <div id="puntos-recogida-container">
@@ -101,7 +100,6 @@
                 </div>
                 <button type="button" class="secondary" onclick="anadirPuntoRecogida()">+ Añadir otro punto</button>
             </fieldset>
-
             <label>Detalles Adicionales <textarea name="detalles" placeholder="Cualquier otra aclaración..."></textarea></label>
             <button type="submit">Contactar por WhatsApp</button>
         </form>
@@ -171,13 +169,12 @@ document.addEventListener('DOMContentLoaded', () => {
         form.reset();
         document.getElementById('puntos-recogida-container').innerHTML = '<div class="punto-recogida"><input type="text" name="puntos_de_recogida[]" placeholder="Dirección del primer punto" required></div>';
         
-        const esEventoEspecifico = !!evento.id; // Chequea si es un evento de la lista o un servicio genérico
+        const esEventoEspecifico = !!evento.id;
         document.getElementById('modal-titulo').innerText = `Cotización para: ${evento.nombre}`;
         form.querySelector('#form-evento-nombre').value = evento.nombre || 'Servicio Personalizado';
         form.querySelector('#form-evento-fecha').value = evento.fecha || '';
         form.querySelector('#form-evento-lugar').value = evento.lugar || '';
         
-        // Muestra el selector de tipo de viaje solo si es un evento específico
         const campoTipoViaje = document.getElementById('campo-tipo-viaje');
         if (esEventoEspecifico) {
             campoTipoViaje.style.display = 'block';
@@ -205,17 +202,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const nombreCliente = formData.get('nombre_cliente');
         const pasajeros = formData.get('pasajeros_totales');
         const detalles = formData.get('detalles');
-        const tipoViaje = formData.get('tipo_viaje'); // Nuevo dato
+        const tipoViaje = formData.get('tipo_viaje');
         
         const dataParaSheet = new FormData();
         dataParaSheet.append('tipo_servicio', tipoServicio);
         dataParaSheet.append('nombre_cliente', nombreCliente);
-        dataParaSheet.append('telefono', 'N/A (Obtenido de WhatsApp)'); // Eliminamos el campo
+        dataParaSheet.append('telefono', 'N/A (de WhatsApp)');
         dataParaSheet.append('pasajeros_totales', pasajeros);
         dataParaSheet.append('puntos_de_recogida', puntos);
         
         let detallesCompletos = `Fecha Evento: ${formData.get('evento_fecha')}, Lugar: ${formData.get('evento_lugar')}.`;
-        if (tipoViaje) { // Si existe el tipo de viaje (osea, si es un evento)
+        if (tipoViaje) {
             detallesCompletos += ` Tipo de Viaje: ${tipoViaje}.`;
         }
         detallesCompletos += ` Detalles Adicionales: ${detalles}`;
