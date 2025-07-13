@@ -13,15 +13,15 @@
         .container { max-width: 1100px; }
         nav { position: sticky; top: 0; z-index: 1000; background-color: var(--pico-card-background-color); border-bottom: 1px solid var(--pico-card-border-color); padding: 0.5rem 1rem; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         nav ul { margin-bottom: 0; }
-        nav li a[role="button"] { margin-bottom: 0; padding: 5px 10px; }
-        .servicios-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-top: 2rem; }
-        .servicio-card { border: 1px solid var(--pico-muted-border-color); border-radius: var(--pico-border-radius); padding: 1.5rem; text-align: center; transition: transform 0.2s, box-shadow 0.2s; display: flex; flex-direction: column; }
-        .servicio-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
-        .servicio-card .icono { font-size: 2.5rem; color: var(--primary-color); margin-bottom: 1rem; }
-        .servicio-card p { flex-grow: 1; }
-        .servicio-card button { background-color: var(--primary-color); border-color: var(--primary-color); width: 100%; }
-        /* Oculta campos específicos por defecto */
-        #cotizacion-form-container .campo-especifico { display: none; }
+        .evento-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-top: 2rem; }
+        .evento-card { border: 1px solid var(--pico-muted-border-color); border-radius: var(--pico-border-radius); padding: 0; display: flex; flex-direction: column; overflow: hidden; transition: transform 0.2s, box-shadow 0.2s; }
+        .evento-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
+        .evento-card-contenido { padding: 1.5rem; flex-grow: 1; display: flex; flex-direction: column; }
+        .evento-card-contenido h5 { margin-bottom: 0.5rem; }
+        .evento-card-contenido p { color: var(--pico-secondary); margin-bottom: 1rem; flex-grow: 1; }
+        .evento-card-contenido button { background-color: var(--primary-color); border-color: var(--primary-color); width: 100%; }
+        .evento-card.agotado { opacity: 0.6; }
+        .evento-card.agotado button { background-color: var(--pico-muted-border-color); border-color: var(--pico-muted-border-color); pointer-events: none; }
         .punto-recogida { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; }
         .punto-recogida input { flex-grow: 1; }
         .punto-recogida button { width: auto; padding: 0 0.75rem; line-height: 1.5rem; background-color: var(--pico-muted-background-color); color: var(--pico-muted-color); border: 1px solid var(--pico-muted-border-color); }
@@ -33,19 +33,22 @@
 <body>
     <nav class="container-fluid">
         <ul><li><strong><a href="#">Turismo Piombino</a></strong></li></ul>
-        <ul><li><a href="#servicios">Servicios</a></li><li><a href="#disponibilidad">Disponibilidad</a></li></ul>
+        <ul><li><a href="#proximos-eventos">Próximos Eventos</a></li><li><a href="#otros-servicios">Otros Servicios</a></li><li><a href="#disponibilidad">Disponibilidad</a></li></ul>
     </nav>
     <main class="container">
-        <section id="servicios">
-            <h2 style="text-align:center;">Nuestros Servicios de Transporte</h2>
-            <div class="servicios-grid">
-                <article class="servicio-card"><div class="icono"><i class="fa-solid fa-ticket"></i></div><h5>Traslados a Eventos</h5><p>Recitales, festivales y más. Viaja en grupo de forma segura.</p><button onclick="abrirModalCotizacion('Recital')">Cotizar</button></article>
-                <article class="servicio-card"><div class="icono"><i class="fa-solid fa-martini-glass-citrus"></i></div><h5>Eventos Sociales</h5><p>Casamientos, cumpleaños y celebraciones.</p><button onclick="abrirModalCotizacion('Evento Social')">Cotizar</button></article>
-                <article class="servicio-card"><div class="icono"><i class="fa-solid fa-briefcase"></i></div><h5>Eventos Corporativos</h5><p>Transporte para seminarios, jornadas y team building.</p><button onclick="abrirModalCotizacion('Evento Corporativo')">Cotizar</button></article>
-                <article class="servicio-card"><div class="icono"><i class="fa-solid fa-plane-departure"></i></div><h5>Traslados Aeropuerto</h5><p>Viajes a Ezeiza y Aeroparque. Puntualidad y confort.</p><button onclick="abrirModalCotizacion('Aeropuerto')">Cotizar</button></article>
-                <article class="servicio-card"><div class="icono"><i class="fa-solid fa-van-shuttle"></i></div><h5>Viajes Privados</h5><p>Alquiler de vehículos con chofer para el destino que necesites.</p><button onclick="abrirModalCotizacion('Viaje Privado')">Cotizar</button></article>
-                <article class="servicio-card"><div class="icono"><i class="fa-solid fa-earth-americas"></i></div><h5>Larga Distancia</h5><p>Servicios de larga distancia. Consultá por tu próximo destino.</p><button onclick="abrirModalCotizacion('Larga Distancia')">Cotizar</button></article>
+        <section id="proximos-eventos">
+            <h2 style="text-align:center;">Traslados a Próximos Eventos</h2>
+            <div id="eventos-lista" class="evento-grid">
+                <p aria-busy="true">Cargando eventos disponibles...</p>
             </div>
+        </section>
+        <hr>
+        <section id="otros-servicios">
+             <h3 style="text-align:center;">¿Necesitas otro tipo de traslado?</h3>
+             <p style="text-align:center;">Para eventos sociales, corporativos, aeropuertos o viajes privados, haz clic aquí.</p>
+             <div style="text-align: center;">
+                <button onclick="abrirModalCotizacion({ nombre: 'Servicio Personalizado' })">Cotizar Otro Servicio</button>
+             </div>
         </section>
         <hr>
         <section id="disponibilidad">
@@ -70,43 +73,23 @@
           <h4 id="modal-titulo">Solicitud de Cotización</h4>
         </header>
         <form id="cotizacion-form-container">
-            <input type="hidden" id="form-servicio-tipo" name="tipo_servicio">
+            <input type="hidden" id="form-evento-nombre" name="evento_nombre">
+            <input type="hidden" id="form-evento-fecha" name="evento_fecha">
+            <input type="hidden" id="form-evento-lugar" name="evento_lugar">
+            
             <label>Nombre y Apellido <input type="text" name="nombre_cliente" required></label>
             <label>Teléfono (con cód. de área) <input type="tel" name="telefono" required></label>
             <label>Cantidad Total de Pasajeros <input type="number" name="pasajeros_totales" min="1" required></label>
-            
-            <div id="campos-aeropuerto" class="campo-especifico">
-                <label>Aeropuerto
-                    <select name="aeropuerto">
-                        <option value="EZE">Ezeiza (EZE)</option>
-                        <option value="AEP">Aeroparque (AEP)</option>
-                    </select>
-                </label>
-                <label>Fecha y Hora del Vuelo <input type="datetime-local" name="fecha_hora_vuelo"></label>
-            </div>
-            <div id="campos-evento-social" class="campo-especifico">
-                <label>Fecha del Evento <input type="date" name="fecha_evento"></label>
-                <label>Dirección del Evento/Destino <input type="text" name="direccion_evento"></label>
-                <label>Tipo de Viaje
-                    <select name="tipo_viaje">
-                        <option value="Ida y Vuelta">Ida y Vuelta</option>
-                        <option value="Solo Ida">Solo Ida</option>
-                        <option value="Solo Vuelta">Solo Vuelta</option>
-                    </select>
-                </label>
-                 <label>Horario de Ida (aprox.) <input type="time" name="horario_ida"></label>
-                 <label>Horario de Vuelta (aprox.) <input type="time" name="horario_vuelta"></label>
-            </div>
 
             <fieldset>
-                <legend>Puntos de Recogida/Partida</legend>
+                <legend>Puntos de Recogida</legend>
                 <div id="puntos-recogida-container">
                     <div class="punto-recogida"><input type="text" name="puntos_de_recogida[]" placeholder="Dirección del primer punto" required></div>
                 </div>
                 <button type="button" class="secondary" onclick="anadirPuntoRecogida()">+ Añadir otro punto</button>
             </fieldset>
 
-            <label>Detalles Adicionales <textarea name="detalles" placeholder="Aclaraciones, si es necesario esperar, etc."></textarea></label>
+            <label>Detalles Adicionales (Ej: Solo Ida / Solo Vuelta) <textarea name="detalles"></textarea></label>
             <button type="submit">Contactar por WhatsApp</button>
         </form>
       </article>
@@ -115,26 +98,75 @@
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     const telefonoPiombino = "5491123757821";
+    const googleSheetEventosUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTGqjcBT-GiILtXal_RQqsBrr7HypTsWgyJT8KgmIBa7YnhjyId1TLsDnj3f-1dMA5BF3Op5PF-wQdN/pub?output=csv';
     const scriptCarteroUrl = 'https://script.google.com/macros/s/AKfycbwKpO5eAfa1xR8ITcQo8dCfGWCCq23a1BuC3simU84Orf_o7iGLH4VaxUOO0kZuKwUKxA/exec';
+    
+    let eventos = [];
+    const listaEventosContainer = document.getElementById('eventos-lista');
     const modal = document.getElementById('modal-cotizacion');
     const form = document.getElementById('cotizacion-form-container');
 
-    window.abrirModalCotizacion = function(tipoServicio) {
-        document.getElementById('modal-titulo').innerText = `Cotización para ${tipoServicio}`;
+    function csvToArray(csv) {
+        const lines = csv.split(/\r?\n/);
+        const headers = lines[0].split(',');
+        const data = [];
+        const regex = /,(?=(?:(?:[^"]*"){2})*[^"]*$)/;
+        for (let i = 1; i < lines.length; i++) {
+            if (!lines[i]) continue;
+            const values = lines[i].split(regex);
+            if (values.length === headers.length) {
+                const obj = {};
+                for (let j = 0; j < headers.length; j++) {
+                    let value = values[j] || '';
+                    if (value.startsWith('"') && value.endsWith('"')) { value = value.slice(1, -1); }
+                    obj[headers[j].trim()] = value.trim();
+                }
+                data.push(obj);
+            }
+        }
+        return data;
+    }
+    
+    async function fetchAndRenderEvents() {
+        if (!listaEventosContainer) return;
+        try {
+            const response = await fetch(googleSheetEventosUrl, { cache: 'no-store' });
+            if (!response.ok) { throw new Error(`Error de red: ${response.statusText}`); }
+            const csvText = await response.text();
+            eventos = csvToArray(csvText);
+            listaEventosContainer.innerHTML = ''; 
+            if (eventos.length === 0) { listaEventosContainer.innerHTML = '<p>No hay eventos programados por el momento.</p>'; return; }
+            
+            eventos.forEach(evento => {
+                if (!evento.id || !evento.nombre) return;
+                const esAgotado = evento.estado === 'agotado';
+                const tarjeta = document.createElement('article');
+                tarjeta.className = `evento-card ${esAgotado ? 'agotado' : ''}`;
+                tarjeta.innerHTML = `
+                    <div class="evento-card-contenido">
+                        <h5>${evento.nombre}</h5>
+                        <p><i class="fa-regular fa-calendar"></i> ${evento.fecha}<br><i class="fa-solid fa-location-dot"></i> ${evento.lugar}</p>
+                        <button onclick='abrirModalCotizacion(${JSON.stringify(evento)})' ${esAgotado ? 'disabled' : ''}>
+                            ${esAgotado ? 'Cupos Agotados' : 'Cotizar Traslado'}
+                        </button>
+                    </div>`;
+                listaEventosContainer.appendChild(tarjeta);
+            });
+        } catch (error) {
+            console.error('Error al cargar los eventos:', error);
+            listaEventosContainer.innerHTML = '<p>Hubo un error al cargar los eventos.</p>';
+        }
+    }
+
+    window.abrirModalCotizacion = function(evento) {
         form.reset();
         document.getElementById('puntos-recogida-container').innerHTML = '<div class="punto-recogida"><input type="text" name="puntos_de_recogida[]" placeholder="Dirección del primer punto" required></div>';
-        form.querySelector('#form-servicio-tipo').value = tipoServicio;
-
-        // Oculta todos los campos específicos
-        form.querySelectorAll('.campo-especifico').forEach(el => el.style.display = 'none');
-
-        // Muestra los campos correctos según el tipo de servicio
-        if (tipoServicio === 'Aeropuerto') {
-            document.getElementById('campos-aeropuerto').style.display = 'block';
-        } else if (['Recital', 'Evento Social', 'Evento Corporativo'].includes(tipoServicio)) {
-            // Reutilizamos el mismo bloque de campos detallados para todos los eventos
-            document.getElementById('campos-evento-social').style.display = 'block';
-        }
+        
+        // Llena el título y los campos ocultos con la info del evento
+        document.getElementById('modal-titulo').innerText = `Cotización para: ${evento.nombre}`;
+        form.querySelector('#form-evento-nombre').value = evento.nombre || 'Servicio Personalizado';
+        form.querySelector('#form-evento-fecha').value = evento.fecha || '';
+        form.querySelector('#form-evento-lugar').value = evento.lugar || '';
         
         modal.showModal();
     }
@@ -150,56 +182,39 @@ document.addEventListener('DOMContentLoaded', () => {
     form.addEventListener('submit', (e) => {
         e.preventDefault();
         const formData = new FormData(form);
-        
         const puntos = Array.from(form.querySelectorAll('input[name="puntos_de_recogida[]"]'))
                             .map(input => input.value.trim()).filter(value => value !== '').join(' | ');
         
-        // Preparamos los datos para la planilla y el mensaje
+        // Preparamos los datos para la planilla y el mensaje de WhatsApp
+        const tipoServicio = formData.get('evento_nombre');
+        const nombreCliente = formData.get('nombre_cliente');
+        const telefono = formData.get('telefono');
+        const pasajeros = formData.get('pasajeros_totales');
+        const detalles = formData.get('detalles');
+        
         const dataParaSheet = new FormData();
-        let msg = `¡Hola! Quisiera cotizar un servicio de *${formData.get('tipo_servicio')}*.\n`;
-        
-        // Campos comunes
-        dataParaSheet.append('tipo_servicio', formData.get('tipo_servicio'));
-        dataParaSheet.append('nombre_cliente', formData.get('nombre_cliente'));
-        dataParaSheet.append('telefono', formData.get('telefono'));
-        dataParaSheet.append('pasajeros_totales', formData.get('pasajeros_totales'));
+        dataParaSheet.append('tipo_servicio', tipoServicio);
+        dataParaSheet.append('nombre_cliente', nombreCliente);
+        dataParaSheet.append('telefono', telefono);
+        dataParaSheet.append('pasajeros_totales', pasajeros);
         dataParaSheet.append('puntos_de_recogida', puntos);
-        dataParaSheet.append('detalles', formData.get('detalles'));
-        msg += `- Nombre: ${formData.get('nombre_cliente')}\n` +
-               `- Teléfono: ${formData.get('telefono')}\n` +
-               `- Pasajeros: ${formData.get('pasajeros_totales')}\n` +
-               `- Puntos de Partida: ${puntos.replace(/ \| /g, ', ')}\n`;
-
-        // Campos específicos
-        if (['Recital', 'Evento Social', 'Evento Corporativo'].includes(formData.get('tipo_servicio'))) {
-            dataParaSheet.append('direccion_evento', formData.get('direccion_evento'));
-            dataParaSheet.append('detalles', `Tipo Viaje: ${formData.get('tipo_viaje')}, Horario Ida: ${formData.get('horario_ida')}, Horario Vuelta: ${formData.get('horario_vuelta')}. ` + formData.get('detalles'));
-            msg += `- Dirección Evento: ${formData.get('direccion_evento')}\n` +
-                   `- Tipo de Viaje: ${formData.get('tipo_viaje')}\n` +
-                   `- Horarios: Ida ${formData.get('horario_ida')} / Vuelta ${formData.get('horario_vuelta')}\n`;
-        }
-        if (formData.get('tipo_servicio') === 'Aeropuerto') {
-            dataParaSheet.append('aeropuerto', formData.get('aeropuerto'));
-            dataParaSheet.append('fecha_hora_vuelo', formData.get('fecha_hora_vuelo'));
-            msg += `- Aeropuerto: ${formData.get('aeropuerto')}\n- Vuelo (Fecha/Hora): ${formData.get('fecha_hora_vuelo')}\n`;
-        }
-        msg += `- Detalles Adicionales: ${formData.get('detalles')}`;
+        dataParaSheet.append('detalles', `Fecha Evento: ${formData.get('evento_fecha')}, Lugar: ${formData.get('evento_lugar')}. Detalles Adicionales: ${detalles}`);
         
-        // Tarea 1: Enviar datos a la planilla
         fetch(scriptCarteroUrl, { method: 'POST', body: dataParaSheet })
             .catch(error => console.error("Error al enviar a la planilla:", error));
 
-        // Tarea 2: Abrir WhatsApp
+        const msg = `¡Hola! Quisiera cotizar un servicio de *${tipoServicio}*.\n` +
+                  `- Cliente: ${nombreCliente}\n` +
+                  `- Teléfono: ${telefono}\n` +
+                  `- Pasajeros: ${pasajeros}\n` +
+                  `- Puntos de Recogida: ${puntos.replace(/ \| /g, ', ')}\n` +
+                  `- Detalles Adicionales: ${detalles}`;
+        
         window.open(`https://wa.me/${telefonoPiombino}?text=${encodeURIComponent(msg)}`, '_blank');
         modal.close();
     });
 
-    // Esta sección para cargar eventos desde una planilla la dejamos comentada por ahora
-    // para enfocarnos en el formulario, pero la estructura sigue aquí.
-    /*
-    const googleSheetEventosUrl = 'URL_DE_LA_OTRA_PLANILLA_DE_EVENTOS';
-    ... (código para fetchAndRenderEvents)
-    */
+    fetchAndRenderEvents(); // Llama a la función para construir las tarjetas de eventos al cargar la página
 });
 </script>
 </body>
