@@ -27,6 +27,7 @@
         .punto-recogida { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; }
         .punto-recogida input { flex-grow: 1; }
         .punto-recogida button { width: auto; padding: 0 0.75rem; line-height: 1.5rem; background-color: var(--pico-muted-background-color); color: var(--pico-muted-color); border: 1px solid var(--pico-muted-border-color); }
+        .campo-especifico { display: none; } /* Oculta campos específicos por defecto */
         footer { margin-top: 4rem; padding: 2rem 1rem; border-top: 1px solid var(--pico-muted-border-color); text-align: center; background-color: var(--pico-muted-background-color); }
         footer a { font-size: 1.5rem; margin: 0 0.5rem; color: var(--pico-secondary); }
         section { padding-top: 5rem; }
@@ -82,9 +83,13 @@
             <input type="hidden" id="form-evento-nombre" name="evento_nombre">
             <input type="hidden" id="form-evento-fecha" name="evento_fecha">
             <input type="hidden" id="form-evento-lugar" name="evento_lugar">
+            
             <label>Nombre y Apellido <input type="text" name="nombre_cliente" required></label>
             <label>Cantidad Total de Pasajeros <input type="number" name="pasajeros_totales" min="1" required></label>
-            <div id="campo-tipo-viaje" style="display: none;">
+            
+            <div id="campos-para-eventos" class="campo-especifico">
+                <label>Fecha del Evento <input type="date" name="fecha_del_evento"></label>
+                <label>Dirección del Evento/Destino <input type="text" name="direccion_evento"></label>
                 <label>Tipo de Viaje
                     <select name="tipo_viaje">
                         <option value="Ida y Vuelta" selected>Ida y Vuelta</option>
@@ -92,7 +97,10 @@
                         <option value="Solo Vuelta">Solo Vuelta</option>
                     </select>
                 </label>
+                 <label>Horario de Ida (aprox.) <input type="time" name="horario_ida"></label>
+                 <label>Horario de Vuelta (aprox.) <input type="time" name="horario_vuelta"></label>
             </div>
+            
             <fieldset>
                 <legend>Puntos de Recogida</legend>
                 <div id="puntos-recogida-container">
@@ -100,6 +108,7 @@
                 </div>
                 <button type="button" class="secondary" onclick="anadirPuntoRecogida()">+ Añadir otro punto</button>
             </fieldset>
+
             <label>Detalles Adicionales <textarea name="detalles" placeholder="Cualquier otra aclaración..."></textarea></label>
             <button type="submit">Contactar por WhatsApp</button>
         </form>
@@ -116,6 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const modal = document.getElementById('modal-cotizacion');
     const form = document.getElementById('cotizacion-form-container');
 
+    // ... (La función csvToArray sigue igual) ...
     function csvToArray(csv) {
         const lines = csv.split(/\r?\n/); const headers = lines[0].split(','); const data = [];
         const regex = /,(?=(?:(?:[^"]*"){2})*[^"]*$)/;
@@ -149,14 +159,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const esAgotado = evento.estado === 'agotado';
                 const tarjeta = document.createElement('article');
                 tarjeta.className = `evento-card ${esAgotado ? 'agotado' : ''}`;
-                tarjeta.innerHTML = `
-                    <div class="card-contenido">
-                        <h5>${evento.nombre}</h5>
-                        <p><i class="fa-regular fa-calendar"></i> ${evento.fecha}<br><i class="fa-solid fa-location-dot"></i> ${evento.lugar}</p>
-                        <button onclick='abrirModalCotizacion(${JSON.stringify(evento)})' ${esAgotado ? 'disabled' : ''}>
-                            ${esAgotado ? 'Cupos Agotados' : 'Cotizar Traslado'}
-                        </button>
-                    </div>`;
+                tarjeta.innerHTML = `<div class="card-contenido"><h5>${evento.nombre}</h5><p><i class="fa-regular fa-calendar"></i> ${evento.fecha}<br><i class="fa-solid fa-location-dot"></i> ${evento.lugar}</p><button onclick='abrirModalCotizacion(${JSON.stringify(evento)})' ${esAgotado ? 'disabled' : ''}>${esAgotado ? 'Cupos Agotados' : 'Cotizar Traslado'}</button></div>`;
                 listaEventosContainer.appendChild(tarjeta);
             });
         } catch (error) {
@@ -169,17 +172,22 @@ document.addEventListener('DOMContentLoaded', () => {
         form.reset();
         document.getElementById('puntos-recogida-container').innerHTML = '<div class="punto-recogida"><input type="text" name="puntos_de_recogida[]" placeholder="Dirección del primer punto" required></div>';
         
-        const esEventoEspecifico = !!evento.id;
+        const esEventoDeLista = !!evento.id;
+        const esTipoEventoGeneral = ['Evento Social', 'Evento Corporativo'].includes(evento.nombre);
+        
         document.getElementById('modal-titulo').innerText = `Cotización para: ${evento.nombre}`;
-        form.querySelector('#form-evento-nombre').value = evento.nombre || 'Servicio Personalizado';
+        form.querySelector('#form-evento-nombre').value = evento.nombre;
         form.querySelector('#form-evento-fecha').value = evento.fecha || '';
         form.querySelector('#form-evento-lugar').value = evento.lugar || '';
         
-        const campoTipoViaje = document.getElementById('campo-tipo-viaje');
-        if (esEventoEspecifico) {
-            campoTipoViaje.style.display = 'block';
+        // Muestra los campos detallados para cualquier tipo de evento
+        const camposParaEventos = document.getElementById('campos-para-eventos');
+        if (esEventoDeLista || esTipoEventoGeneral) {
+            camposParaEventos.style.display = 'block';
+            // Si es un evento de la lista, ya tenemos la fecha, así que la ocultamos para que no la pida de nuevo
+            camposParaEventos.querySelector('label[for="fecha_del_evento"]').style.display = esEventoDeLista ? 'none' : 'block';
         } else {
-            campoTipoViaje.style.display = 'none';
+            camposParaEventos.style.display = 'none';
         }
         
         modal.showModal();
@@ -201,8 +209,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const tipoServicio = formData.get('evento_nombre');
         const nombreCliente = formData.get('nombre_cliente');
         const pasajeros = formData.get('pasajeros_totales');
-        const detalles = formData.get('detalles');
-        const tipoViaje = formData.get('tipo_viaje');
+        let detalles = formData.get('detalles');
         
         const dataParaSheet = new FormData();
         dataParaSheet.append('tipo_servicio', tipoServicio);
@@ -211,24 +218,29 @@ document.addEventListener('DOMContentLoaded', () => {
         dataParaSheet.append('pasajeros_totales', pasajeros);
         dataParaSheet.append('puntos_de_recogida', puntos);
         
-        let detallesCompletos = `Fecha Evento: ${formData.get('evento_fecha')}, Lugar: ${formData.get('evento_lugar')}.`;
-        if (tipoViaje) {
-            detallesCompletos += ` Tipo de Viaje: ${tipoViaje}.`;
+        let msg = `¡Hola! Quisiera cotizar un servicio de *${tipoServicio}*.\n- Cliente: ${nombreCliente}\n- Pasajeros: ${pasajeros}\n`;
+
+        // Añade los detalles del evento si existen
+        const esTipoEventoGeneral = ['Evento Social', 'Evento Corporativo'].includes(tipoServicio);
+        if (!!formData.get('evento_fecha') || esTipoEventoGeneral) {
+            const fechaEvento = esTipoEventoGeneral ? formData.get('fecha_del_evento') : formData.get('evento_fecha');
+            const direccionEvento = esTipoEventoGeneral ? formData.get('direccion_evento') : formData.get('evento_lugar');
+            const tipoViaje = formData.get('tipo_viaje');
+            const horarioIda = formData.get('horario_ida');
+            const horarioVuelta = formData.get('horario_vuelta');
+
+            msg += `- Fecha: ${fechaEvento}\n` +
+                   `- Dirección: ${direccionEvento}\n` +
+                   `- Tipo de Viaje: ${tipoViaje}\n` +
+                   `- Horarios: Ida ${horarioIda} / Vuelta ${horarioVuelta}\n`;
+            
+            detalles = `Fecha: ${fechaEvento}, Dirección: ${direccionEvento}, Viaje: ${tipoViaje}, Horarios: ${horarioIda}-${horarioVuelta}. Detalles Adicionales: ${detalles}`;
         }
-        detallesCompletos += ` Detalles Adicionales: ${detalles}`;
-        dataParaSheet.append('detalles', detallesCompletos);
+        dataParaSheet.append('detalles', detalles);
+        msg += `- Puntos de Recogida: ${puntos.replace(/ \| /g, ', ')}\n- Detalles Adicionales: ${formData.get('detalles')}`;
         
         fetch(scriptCarteroUrl, { method: 'POST', body: dataParaSheet })
             .catch(error => console.error("Error al enviar a la planilla:", error));
-
-        let msg = `¡Hola! Quisiera cotizar un servicio de *${tipoServicio}*.\n` +
-                  `- Cliente: ${nombreCliente}\n` +
-                  `- Pasajeros: ${pasajeros}\n`;
-        if (tipoViaje) {
-            msg += `- Tipo de Viaje: *${tipoViaje}*\n`;
-        }
-        msg += `- Puntos de Recogida: ${puntos.replace(/ \| /g, ', ')}\n` +
-               `- Detalles Adicionales: ${detalles}`;
         
         window.open(`https://wa.me/${telefonoPiombino}?text=${encodeURIComponent(msg)}`, '_blank');
         modal.close();
