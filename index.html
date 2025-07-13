@@ -13,13 +13,14 @@
         .container { max-width: 1100px; }
         nav { position: sticky; top: 0; z-index: 1000; background-color: var(--pico-card-background-color); border-bottom: 1px solid var(--pico-card-border-color); padding: 0.5rem 1rem; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         nav ul { margin-bottom: 0; }
-        .evento-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-top: 2rem; }
-        .evento-card { border: 1px solid var(--pico-muted-border-color); border-radius: var(--pico-border-radius); padding: 0; display: flex; flex-direction: column; overflow: hidden; transition: transform 0.2s, box-shadow 0.2s; }
-        .evento-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
-        .evento-card-contenido { padding: 1.5rem; flex-grow: 1; display: flex; flex-direction: column; }
-        .evento-card-contenido h5 { margin-bottom: 0.5rem; }
-        .evento-card-contenido p { color: var(--pico-secondary); margin-bottom: 1rem; flex-grow: 1; }
-        .evento-card-contenido button { background-color: var(--primary-color); border-color: var(--primary-color); width: 100%; }
+        .servicios-grid, .evento-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-top: 2rem; }
+        .servicio-card, .evento-card { border: 1px solid var(--pico-muted-border-color); border-radius: var(--pico-border-radius); padding: 0; display: flex; flex-direction: column; overflow: hidden; transition: transform 0.2s, box-shadow 0.2s; }
+        .servicio-card:hover, .evento-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
+        .card-contenido { padding: 1.5rem; flex-grow: 1; display: flex; flex-direction: column; text-align: center; }
+        .card-contenido .icono { font-size: 2.5rem; color: var(--primary-color); margin-bottom: 1rem; }
+        .card-contenido h5 { margin-bottom: 0.5rem; }
+        .card-contenido p { color: var(--pico-secondary); margin-bottom: 1rem; flex-grow: 1; }
+        .card-contenido a[role="button"], .card-contenido button { background-color: var(--primary-color); border-color: var(--primary-color); width: 100%; }
         .evento-card.agotado { opacity: 0.6; }
         .evento-card.agotado button { background-color: var(--pico-muted-border-color); border-color: var(--pico-muted-border-color); pointer-events: none; }
         .punto-recogida { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; }
@@ -33,22 +34,24 @@
 <body>
     <nav class="container-fluid">
         <ul><li><strong><a href="#">Turismo Piombino</a></strong></li></ul>
-        <ul><li><a href="#proximos-eventos">Próximos Eventos</a></li><li><a href="#otros-servicios">Otros Servicios</a></li><li><a href="#disponibilidad">Disponibilidad</a></li></ul>
+        <ul><li><a href="#servicios">Servicios</a></li><li><a href="#disponibilidad">Disponibilidad</a></li></ul>
     </nav>
     <main class="container">
-        <section id="proximos-eventos">
-            <h2 style="text-align:center;">Traslados a Próximos Eventos</h2>
-            <div id="eventos-lista" class="evento-grid">
-                <p aria-busy="true">Cargando eventos disponibles...</p>
+        <section id="servicios">
+            <h2 style="text-align:center;">Nuestros Servicios</h2>
+            <div class="servicios-grid">
+                <article class="servicio-card"><div class="card-contenido"><div class="icono"><i class="fa-solid fa-ticket"></i></div><h5>Traslados a Eventos</h5><p>Recitales y festivales. Revisa la lista de próximos eventos y cotiza tu viaje.</p><a href="#seccion-eventos-detalles" role="button">Ver Eventos Disponibles</a></div></article>
+                <article class="servicio-card"><div class="card-contenido"><div class="icono"><i class="fa-solid fa-martini-glass-citrus"></i></div><h5>Eventos Sociales</h5><p>Casamientos, cumpleaños y celebraciones.</p><button onclick="abrirModalCotizacion({ nombre: 'Evento Social' })">Cotizar</button></div></article>
+                <article class="servicio-card"><div class="card-contenido"><div class="icono"><i class="fa-solid fa-briefcase"></i></div><h5>Eventos Corporativos</h5><p>Transporte para seminarios, jornadas y team building.</p><button onclick="abrirModalCotizacion({ nombre: 'Evento Corporativo' })">Cotizar</button></div></article>
+                <article class="servicio-card"><div class="card-contenido"><div class="icono"><i class="fa-solid fa-plane-departure"></i></div><h5>Traslados Aeropuerto</h5><p>Viajes a Ezeiza y Aeroparque. Puntualidad y confort.</p><button onclick="abrirModalCotizacion({ nombre: 'Aeropuerto' })">Cotizar</button></div></article>
             </div>
         </section>
         <hr>
-        <section id="otros-servicios">
-             <h3 style="text-align:center;">¿Necesitas otro tipo de traslado?</h3>
-             <p style="text-align:center;">Para eventos sociales, corporativos, aeropuertos o viajes privados, haz clic aquí.</p>
-             <div style="text-align: center;">
-                <button onclick="abrirModalCotizacion({ nombre: 'Servicio Personalizado' })">Cotizar Otro Servicio</button>
-             </div>
+        <section id="seccion-eventos-detalles">
+            <h3>Próximos Eventos Disponibles</h3>
+            <div id="eventos-lista" class="evento-grid">
+                <p aria-busy="true">Cargando eventos disponibles...</p>
+            </div>
         </section>
         <hr>
         <section id="disponibilidad">
@@ -76,11 +79,9 @@
             <input type="hidden" id="form-evento-nombre" name="evento_nombre">
             <input type="hidden" id="form-evento-fecha" name="evento_fecha">
             <input type="hidden" id="form-evento-lugar" name="evento_lugar">
-            
             <label>Nombre y Apellido <input type="text" name="nombre_cliente" required></label>
             <label>Teléfono (con cód. de área) <input type="tel" name="telefono" required></label>
             <label>Cantidad Total de Pasajeros <input type="number" name="pasajeros_totales" min="1" required></label>
-
             <fieldset>
                 <legend>Puntos de Recogida</legend>
                 <div id="puntos-recogida-container">
@@ -88,7 +89,6 @@
                 </div>
                 <button type="button" class="secondary" onclick="anadirPuntoRecogida()">+ Añadir otro punto</button>
             </fieldset>
-
             <label>Detalles Adicionales (Ej: Solo Ida / Solo Vuelta) <textarea name="detalles"></textarea></label>
             <button type="submit">Contactar por WhatsApp</button>
         </form>
@@ -100,7 +100,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const telefonoPiombino = "5491123757821";
     const googleSheetEventosUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTGqjcBT-GiILtXal_RQqsBrr7HypTsWgyJT8KgmIBa7YnhjyId1TLsDnj3f-1dMA5BF3Op5PF-wQdN/pub?output=csv';
     const scriptCarteroUrl = 'https://script.google.com/macros/s/AKfycbwKpO5eAfa1xR8ITcQo8dCfGWCCq23a1BuC3simU84Orf_o7iGLH4VaxUOO0kZuKwUKxA/exec';
-    
     let eventos = [];
     const listaEventosContainer = document.getElementById('eventos-lista');
     const modal = document.getElementById('modal-cotizacion');
@@ -136,14 +135,13 @@ document.addEventListener('DOMContentLoaded', () => {
             eventos = csvToArray(csvText);
             listaEventosContainer.innerHTML = ''; 
             if (eventos.length === 0) { listaEventosContainer.innerHTML = '<p>No hay eventos programados por el momento.</p>'; return; }
-            
             eventos.forEach(evento => {
                 if (!evento.id || !evento.nombre) return;
                 const esAgotado = evento.estado === 'agotado';
                 const tarjeta = document.createElement('article');
                 tarjeta.className = `evento-card ${esAgotado ? 'agotado' : ''}`;
                 tarjeta.innerHTML = `
-                    <div class="evento-card-contenido">
+                    <div class="card-contenido">
                         <h5>${evento.nombre}</h5>
                         <p><i class="fa-regular fa-calendar"></i> ${evento.fecha}<br><i class="fa-solid fa-location-dot"></i> ${evento.lugar}</p>
                         <button onclick='abrirModalCotizacion(${JSON.stringify(evento)})' ${esAgotado ? 'disabled' : ''}>
@@ -161,13 +159,10 @@ document.addEventListener('DOMContentLoaded', () => {
     window.abrirModalCotizacion = function(evento) {
         form.reset();
         document.getElementById('puntos-recogida-container').innerHTML = '<div class="punto-recogida"><input type="text" name="puntos_de_recogida[]" placeholder="Dirección del primer punto" required></div>';
-        
-        // Llena el título y los campos ocultos con la info del evento
         document.getElementById('modal-titulo').innerText = `Cotización para: ${evento.nombre}`;
         form.querySelector('#form-evento-nombre').value = evento.nombre || 'Servicio Personalizado';
         form.querySelector('#form-evento-fecha').value = evento.fecha || '';
         form.querySelector('#form-evento-lugar').value = evento.lugar || '';
-        
         modal.showModal();
     }
 
@@ -184,8 +179,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const formData = new FormData(form);
         const puntos = Array.from(form.querySelectorAll('input[name="puntos_de_recogida[]"]'))
                             .map(input => input.value.trim()).filter(value => value !== '').join(' | ');
-        
-        // Preparamos los datos para la planilla y el mensaje de WhatsApp
         const tipoServicio = formData.get('evento_nombre');
         const nombreCliente = formData.get('nombre_cliente');
         const telefono = formData.get('telefono');
@@ -214,7 +207,7 @@ document.addEventListener('DOMContentLoaded', () => {
         modal.close();
     });
 
-    fetchAndRenderEvents(); // Llama a la función para construir las tarjetas de eventos al cargar la página
+    fetchAndRenderEvents();
 });
 </script>
 </body>
