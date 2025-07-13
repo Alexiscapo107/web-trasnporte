@@ -19,8 +19,9 @@
         .servicio-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
         .servicio-card .icono { font-size: 2.5rem; color: var(--primary-color); margin-bottom: 1rem; }
         .servicio-card p { flex-grow: 1; }
-        .servicio-card a[role="button"], .servicio-card button { background-color: var(--primary-color); border-color: var(--primary-color); width: 100%; }
-        #cotizacion-form-container .campo-especifico { display: none; } /* Oculta campos específicos por defecto */
+        .servicio-card button { background-color: var(--primary-color); border-color: var(--primary-color); width: 100%; }
+        /* Oculta campos específicos por defecto */
+        #cotizacion-form-container .campo-especifico { display: none; }
         .punto-recogida { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; }
         .punto-recogida input { flex-grow: 1; }
         .punto-recogida button { width: auto; padding: 0 0.75rem; line-height: 1.5rem; background-color: var(--pico-muted-background-color); color: var(--pico-muted-color); border: 1px solid var(--pico-muted-border-color); }
@@ -83,19 +84,29 @@
                 </label>
                 <label>Fecha y Hora del Vuelo <input type="datetime-local" name="fecha_hora_vuelo"></label>
             </div>
-            <div id="campos-evento" class="campo-especifico">
+            <div id="campos-evento-social" class="campo-especifico">
+                <label>Fecha del Evento <input type="date" name="fecha_evento"></label>
                 <label>Dirección del Evento/Destino <input type="text" name="direccion_evento"></label>
+                <label>Tipo de Viaje
+                    <select name="tipo_viaje">
+                        <option value="Ida y Vuelta">Ida y Vuelta</option>
+                        <option value="Solo Ida">Solo Ida</option>
+                        <option value="Solo Vuelta">Solo Vuelta</option>
+                    </select>
+                </label>
+                 <label>Horario de Ida (aprox.) <input type="time" name="horario_ida"></label>
+                 <label>Horario de Vuelta (aprox.) <input type="time" name="horario_vuelta"></label>
             </div>
 
             <fieldset>
-                <legend>Puntos de Recogida</legend>
+                <legend>Puntos de Recogida/Partida</legend>
                 <div id="puntos-recogida-container">
                     <div class="punto-recogida"><input type="text" name="puntos_de_recogida[]" placeholder="Dirección del primer punto" required></div>
                 </div>
                 <button type="button" class="secondary" onclick="anadirPuntoRecogida()">+ Añadir otro punto</button>
             </fieldset>
 
-            <label>Detalles Adicionales <textarea name="detalles" placeholder="Aclaraciones, horarios, si es ida y vuelta, etc."></textarea></label>
+            <label>Detalles Adicionales <textarea name="detalles" placeholder="Aclaraciones, si es necesario esperar, etc."></textarea></label>
             <button type="submit">Contactar por WhatsApp</button>
         </form>
       </article>
@@ -106,22 +117,23 @@ document.addEventListener('DOMContentLoaded', () => {
     const telefonoPiombino = "5491123757821";
     const scriptCarteroUrl = 'https://script.google.com/macros/s/AKfycbwKpO5eAfa1xR8ITcQo8dCfGWCCq23a1BuC3simU84Orf_o7iGLH4VaxUOO0kZuKwUKxA/exec';
     const modal = document.getElementById('modal-cotizacion');
+    const form = document.getElementById('cotizacion-form-container');
 
     window.abrirModalCotizacion = function(tipoServicio) {
         document.getElementById('modal-titulo').innerText = `Cotización para ${tipoServicio}`;
-        const form = document.getElementById('cotizacion-form-container');
-        form.reset(); // Limpia el formulario
-        document.getElementById('puntos-recogida-container').innerHTML = '<div class="punto-recogida"><input type="text" name="puntos_de_recogida[]" placeholder="Dirección del primer punto" required></div>'; // Resetea puntos de recogida
+        form.reset();
+        document.getElementById('puntos-recogida-container').innerHTML = '<div class="punto-recogida"><input type="text" name="puntos_de_recogida[]" placeholder="Dirección del primer punto" required></div>';
         form.querySelector('#form-servicio-tipo').value = tipoServicio;
 
         // Oculta todos los campos específicos
         form.querySelectorAll('.campo-especifico').forEach(el => el.style.display = 'none');
 
-        // Muestra los campos según el tipo de servicio
+        // Muestra los campos correctos según el tipo de servicio
         if (tipoServicio === 'Aeropuerto') {
             document.getElementById('campos-aeropuerto').style.display = 'block';
         } else if (['Recital', 'Evento Social', 'Evento Corporativo'].includes(tipoServicio)) {
-            document.getElementById('campos-evento').style.display = 'block';
+            // Reutilizamos el mismo bloque de campos detallados para todos los eventos
+            document.getElementById('campos-evento-social').style.display = 'block';
         }
         
         modal.showModal();
@@ -135,50 +147,59 @@ document.addEventListener('DOMContentLoaded', () => {
         container.appendChild(nuevoPunto);
     }
     
-    document.getElementById('cotizacion-form-container').addEventListener('submit', (e) => {
+    form.addEventListener('submit', (e) => {
         e.preventDefault();
-        const form = e.target;
         const formData = new FormData(form);
         
-        // Junta todos los puntos de recogida en un solo string
         const puntos = Array.from(form.querySelectorAll('input[name="puntos_de_recogida[]"]'))
-                            .map(input => input.value.trim())
-                            .filter(value => value !== '')
-                            .join(' | '); // Separados por una barra vertical
+                            .map(input => input.value.trim()).filter(value => value !== '').join(' | ');
         
+        // Preparamos los datos para la planilla y el mensaje
         const dataParaSheet = new FormData();
+        let msg = `¡Hola! Quisiera cotizar un servicio de *${formData.get('tipo_servicio')}*.\n`;
+        
+        // Campos comunes
         dataParaSheet.append('tipo_servicio', formData.get('tipo_servicio'));
         dataParaSheet.append('nombre_cliente', formData.get('nombre_cliente'));
         dataParaSheet.append('telefono', formData.get('telefono'));
         dataParaSheet.append('pasajeros_totales', formData.get('pasajeros_totales'));
         dataParaSheet.append('puntos_de_recogida', puntos);
-        dataParaSheet.append('fecha_hora_vuelo', formData.get('fecha_hora_vuelo') || '');
-        dataParaSheet.append('aeropuerto', formData.get('aeropuerto') || '');
-        dataParaSheet.append('direccion_evento', formData.get('direccion_evento') || '');
         dataParaSheet.append('detalles', formData.get('detalles'));
+        msg += `- Nombre: ${formData.get('nombre_cliente')}\n` +
+               `- Teléfono: ${formData.get('telefono')}\n` +
+               `- Pasajeros: ${formData.get('pasajeros_totales')}\n` +
+               `- Puntos de Partida: ${puntos.replace(/ \| /g, ', ')}\n`;
+
+        // Campos específicos
+        if (['Recital', 'Evento Social', 'Evento Corporativo'].includes(formData.get('tipo_servicio'))) {
+            dataParaSheet.append('direccion_evento', formData.get('direccion_evento'));
+            dataParaSheet.append('detalles', `Tipo Viaje: ${formData.get('tipo_viaje')}, Horario Ida: ${formData.get('horario_ida')}, Horario Vuelta: ${formData.get('horario_vuelta')}. ` + formData.get('detalles'));
+            msg += `- Dirección Evento: ${formData.get('direccion_evento')}\n` +
+                   `- Tipo de Viaje: ${formData.get('tipo_viaje')}\n` +
+                   `- Horarios: Ida ${formData.get('horario_ida')} / Vuelta ${formData.get('horario_vuelta')}\n`;
+        }
+        if (formData.get('tipo_servicio') === 'Aeropuerto') {
+            dataParaSheet.append('aeropuerto', formData.get('aeropuerto'));
+            dataParaSheet.append('fecha_hora_vuelo', formData.get('fecha_hora_vuelo'));
+            msg += `- Aeropuerto: ${formData.get('aeropuerto')}\n- Vuelo (Fecha/Hora): ${formData.get('fecha_hora_vuelo')}\n`;
+        }
+        msg += `- Detalles Adicionales: ${formData.get('detalles')}`;
         
         // Tarea 1: Enviar datos a la planilla
         fetch(scriptCarteroUrl, { method: 'POST', body: dataParaSheet })
             .catch(error => console.error("Error al enviar a la planilla:", error));
 
         // Tarea 2: Abrir WhatsApp
-        let msg = `¡Hola! Quisiera cotizar un servicio de *${formData.get('tipo_servicio')}*.\n` +
-                  `- Nombre: ${formData.get('nombre_cliente')}\n` +
-                  `- Teléfono: ${formData.get('telefono')}\n` +
-                  `- Cantidad de Pasajeros: ${formData.get('pasajeros_totales')}\n` +
-                  `- Puntos de Recogida: ${puntos.replace(/ \| /g, ', ')}\n`;
-
-        if (formData.get('tipo_servicio') === 'Aeropuerto') {
-            msg += `- Aeropuerto: ${formData.get('aeropuerto')}\n- Vuelo (Fecha/Hora): ${formData.get('fecha_hora_vuelo')}\n`;
-        }
-        if (['Recital', 'Evento Social', 'Evento Corporativo'].includes(formData.get('tipo_servicio'))) {
-            msg += `- Dirección del Evento: ${formData.get('direccion_evento')}\n`;
-        }
-        msg += `- Detalles: ${formData.get('detalles')}`;
-        
         window.open(`https://wa.me/${telefonoPiombino}?text=${encodeURIComponent(msg)}`, '_blank');
         modal.close();
     });
+
+    // Esta sección para cargar eventos desde una planilla la dejamos comentada por ahora
+    // para enfocarnos en el formulario, pero la estructura sigue aquí.
+    /*
+    const googleSheetEventosUrl = 'URL_DE_LA_OTRA_PLANILLA_DE_EVENTOS';
+    ... (código para fetchAndRenderEvents)
+    */
 });
 </script>
 </body>
