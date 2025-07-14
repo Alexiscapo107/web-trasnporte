@@ -107,13 +107,19 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
+    // --- CONFIGURACIÓN ---
     const telefonoPiombino = "5491123757821";
     const googleSheetEventosUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTGqjcBT-GiILtXal_RQqsBrr7HypTsWgyJT8KgmIBa7YnhjyId1TLsDnj3f-1dMA5BF3Op5PF-wQdN/pub?output=csv';
-    const scriptCarteroUrl = 'https://script.google.com/macros/s/AKfycbwKpO5eAfa1xR8ITcQo8dCfGWCCq23a1BuC3simU84Orf_o7iGLH4VaxUOO0kZuKwUKxA/exec';
+    
+    // ▼▼▼ URL DEL SCRIPT ACTUALIZADA ▼▼▼
+    const scriptCarteroUrl = 'https://script.google.com/macros/s/AKfycbypOELmoNX5kos7PU5_XsJ9UQp9WdmBFnI_iZDrdh1UpoFcWnvjr14ZOSfeiTSlqfuVFA/exec';
+    
+    // --- VARIABLES GLOBALES ---
     let eventos = [];
     const modal = document.getElementById('modal-cotizacion');
     const form = document.getElementById('cotizacion-form-container');
 
+    // --- FUNCIÓN PARA PROCESAR CSV ---
     function csvToArray(csv) {
         const lines = csv.split(/\r?\n/); const headers = lines[0].split(','); const data = [];
         const regex = /,(?=(?:(?:[^"]*"){2})*[^"]*$)/;
@@ -133,6 +139,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return data;
     }
     
+    // --- FUNCIÓN PARA CARGAR Y MOSTRAR EVENTOS ---
     async function fetchAndRenderEvents() {
         const listaEventosContainer = document.getElementById('eventos-lista');
         if (!listaEventosContainer) return;
@@ -157,6 +164,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // --- LÓGICA DEL FORMULARIO INTELIGENTE ---
     window.abrirModalCotizacion = function(evento) {
         form.reset();
         document.getElementById('puntos-recogida-container').innerHTML = '<div class="punto-recogida"><input type="text" name="puntos_de_recogida[]" placeholder="Dirección del primer punto" required></div>';
@@ -181,9 +189,11 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('campos-evento-generico').style.display = 'block';
             document.getElementById('campos-larga-distancia').style.display = 'block';
         }
+        
         modal.showModal();
     }
 
+    // --- FUNCIÓN PARA AÑADIR PUNTOS DE RECOGIDA ---
     window.anadirPuntoRecogida = function() {
         const container = document.getElementById('puntos-recogida-container');
         const nuevoPunto = document.createElement('div');
@@ -192,6 +202,7 @@ document.addEventListener('DOMContentLoaded', () => {
         container.appendChild(nuevoPunto);
     }
     
+    // --- FUNCIÓN PARA PROCESAR Y ENVIAR EL FORMULARIO ---
     form.addEventListener('submit', (e) => {
         e.preventDefault();
         const formData = new FormData(form);
@@ -217,6 +228,8 @@ document.addEventListener('DOMContentLoaded', () => {
         window.open(`https://wa.me/${telefonoPiombino}?text=${encodeURIComponent(msg)}`, '_blank');
         modal.close();
     });
+    
+    // --- INICIALIZACIÓN ---
     fetchAndRenderEvents();
 });
 </script>
