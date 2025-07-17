@@ -42,6 +42,8 @@
                 <article class="servicio-card"><div class="card-contenido"><div class="icono"><i class="fa-solid fa-martini-glass-citrus"></i></div><h5>Evento Social</h5><p>Casamientos, cumpleaños y celebraciones.</p><button onclick="abrirModalCotizacion({ nombre: 'Evento Social' })">Cotizar</button></div></article>
                 <article class="servicio-card"><div class="card-contenido"><div class="icono"><i class="fa-solid fa-briefcase"></i></div><h5>Evento Corporativo</h5><p>Transporte para seminarios y jornadas.</p><button onclick="abrirModalCotizacion({ nombre: 'Evento Corporativo' })">Cotizar</button></div></article>
                 <article class="servicio-card"><div class="card-contenido"><div class="icono"><i class="fa-solid fa-plane-departure"></i></div><h5>Aeropuerto</h5><p>Viajes a Ezeiza, Aeroparque y más.</p><button onclick="abrirModalCotizacion({ nombre: 'Aeropuerto' })">Cotizar</button></div></article>
+                <article class="servicio-card"><div class="card-contenido"><div class="icono"><i class="fa-solid fa-van-shuttle"></i></div><h5>Viaje Privado</h5><p>Alquiler de vehículos con chofer para el destino que necesites.</p><button onclick="abrirModalCotizacion({ nombre: 'Viaje Privado' })">Cotizar</button></div></article>
+                <article class="servicio-card"><div class="card-contenido"><div class="icono"><i class="fa-solid fa-earth-americas"></i></div><h5>Larga Distancia</h5><p>Servicios de larga distancia. Consultá tu próximo destino.</p><button onclick="abrirModalCotizacion({ nombre: 'Larga Distancia' })">Cotizar</button></div></article>
             </div>
         </section>
         <hr>
@@ -107,16 +109,11 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const esTipoEvento = ['Evento Social', 'Evento Corporativo', 'Recital', 'Viaje Privado', 'Larga Distancia'].includes(evento.nombre) || evento.id;
         
-        // Si es un evento de la lista (Recital) o un evento genérico, muestra el tipo de viaje.
         if (esTipoEvento) {
             document.getElementById('campos-tipo-viaje').style.display = 'block';
             toggleDateFields('Ida y Vuelta'); 
+            document.getElementById('campo-direccion-evento').style.display = evento.id ? 'none' : 'block';
         }
-        // Si es un evento genérico, también pide la dirección de destino.
-        if (['Evento Social', 'Evento Corporativo', 'Viaje Privado', 'Larga Distancia'].includes(evento.nombre)) {
-            document.getElementById('campo-direccion-evento').style.display = 'block';
-        }
-        
         modal.showModal();
     }
     
@@ -134,13 +131,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const formData = new FormData(form);
         const puntos = Array.from(form.querySelectorAll('input[name="puntos_de_recogida[]"]')).map(input => input.value.trim()).filter(value => value).join(' | ');
         formData.set('puntos_de_recogida', puntos);
-        
+        const tipoServicio = formData.get('servicio_nombre');
+
         const direccionFinal = formData.get('direccion_evento') || formData.get('evento_lugar');
         formData.set('direccion_destino', direccionFinal);
 
         fetch(scriptCarteroUrl, { method: 'POST', body: formData }).catch(error => console.error("Error al enviar a la planilla:", error));
         
-        let msg = `¡Hola! Quisiera cotizar un servicio de *${formData.get('servicio_nombre')}*.\n- Cliente: ${formData.get('nombre_cliente')}\n- Pasajeros: ${formData.get('pasajeros_totales')}\n`;
+        let msg = `¡Hola! Quisiera cotizar un servicio de *${tipoServicio}*.\n- Cliente: ${formData.get('nombre_cliente')}\n- Pasajeros: ${formData.get('pasajeros_totales')}\n`;
         if (formData.get('tipo_viaje')) msg += `- Tipo de Viaje: ${formData.get('tipo_viaje')}\n`;
         if (direccionFinal) msg += `- Destino: ${direccionFinal}\n`;
         if (formData.get('fecha_hora_salida')) msg += `- Salida: ${formData.get('fecha_hora_salida').replace('T', ' a las ')}\n`;
@@ -151,7 +149,7 @@ document.addEventListener('DOMContentLoaded', () => {
         modal.close();
     });
     
-    // --- El resto de funciones auxiliares y la inicialización ---
+    // --- FUNCIONES AUXILIARES Y DE INICIALIZACIÓN ---
     window.anadirPuntoRecogida = function() {
         const container = document.getElementById('puntos-recogida-container');
         const nuevoPunto = document.createElement('div');
