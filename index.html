@@ -42,6 +42,8 @@
                 <article class="servicio-card"><div class="card-contenido"><div class="icono"><i class="fa-solid fa-martini-glass-citrus"></i></div><h5>Evento Social</h5><p>Casamientos, cumpleaños y celebraciones.</p><button onclick="abrirModalCotizacion({ nombre: 'Evento Social' })">Cotizar</button></div></article>
                 <article class="servicio-card"><div class="card-contenido"><div class="icono"><i class="fa-solid fa-briefcase"></i></div><h5>Evento Corporativo</h5><p>Transporte para seminarios y jornadas.</p><button onclick="abrirModalCotizacion({ nombre: 'Evento Corporativo' })">Cotizar</button></div></article>
                 <article class="servicio-card"><div class="card-contenido"><div class="icono"><i class="fa-solid fa-plane-departure"></i></div><h5>Aeropuerto</h5><p>Viajes a Ezeiza, Aeroparque y más.</p><button onclick="abrirModalCotizacion({ nombre: 'Aeropuerto' })">Cotizar</button></div></article>
+                <article class="servicio-card"><div class="card-contenido"><div class="icono"><i class="fa-solid fa-van-shuttle"></i></div><h5>Viaje Privado</h5><p>Alquiler de vehículos con chofer.</p><button onclick="abrirModalCotizacion({ nombre: 'Viaje Privado' })">Cotizar</button></div></article>
+                <article class="servicio-card"><div class="card-contenido"><div class="icono"><i class="fa-solid fa-earth-americas"></i></div><h5>Larga Distancia</h5><p>Servicios de larga distancia. Consultá tu próximo destino.</p><button onclick="abrirModalCotizacion({ nombre: 'Larga Distancia' })">Cotizar</button></div></article>
             </div>
         </section>
         <hr>
@@ -77,7 +79,7 @@
             </div>
             <div id="campo-salida" class="campo-especifico"><label>Fecha y Hora de Salida <input type="datetime-local" name="fecha_hora_salida"></label></div>
             <div id="campo-regreso" class="campo-especifico"><label>Fecha y Hora de Regreso <input type="datetime-local" name="fecha_hora_regreso"></label></div>
-            <div id="campo-direccion-evento" class="campo-especifico"><label>Dirección de Destino <input type="text" name="direccion_evento" placeholder="Ej: Salón El Pinar, Quilmes"></label></div>
+            <div id="campo-direccion-evento" class="campo-especifico"><label>Dirección de Destino <input type="text" name="direccion_destino" placeholder="Ej: Salón El Pinar, Quilmes"></label></div>
             <fieldset><legend>Puntos de Recogida</legend><div id="puntos-recogida-container"><div class="punto-recogida"><input type="text" name="puntos_de_recogida[]" placeholder="Dirección del primer punto" required></div></div><button type="button" class="secondary" onclick="anadirPuntoRecogida()">+ Añadir otro punto</button></fieldset>
             <label>Detalles Adicionales <textarea name="detalles" placeholder="Cualquier otra aclaración..."></textarea></label>
             <button type="submit">Contactar por WhatsApp</button>
@@ -151,7 +153,49 @@ document.addEventListener('DOMContentLoaded', () => {
         container.appendChild(nuevoPunto);
     }
     
-    async function fetchAndRenderEvents() { /* ... código para cargar eventos de la planilla ... */ }
+    async function fetchAndRenderEvents() {
+        const listaEventosContainer = document.getElementById('eventos-lista');
+        if (!listaEventosContainer) return;
+        try {
+            const response = await fetch(googleSheetEventosUrl, { cache: 'no-store' });
+            if (!response.ok) { throw new Error(`Error de red: ${response.statusText}`); }
+            const csvText = await response.text();
+            const eventos = csvToArray(csvText);
+            listaEventosContainer.innerHTML = ''; 
+            if (eventos.length === 0) { listaEventosContainer.innerHTML = '<p>No hay recitales programados por el momento.</p>'; return; }
+            eventos.forEach(evento => {
+                if (!evento.id || !evento.nombre) return;
+                const esAgotado = evento.estado === 'agotado';
+                const tarjeta = document.createElement('article');
+                tarjeta.className = `evento-card ${esAgotado ? 'agotado' : ''}`;
+                tarjeta.innerHTML = `<div class="card-contenido"><h5>${evento.nombre}</h5><p><i class="fa-regular fa-calendar"></i> ${evento.fecha}<br><i class="fa-solid fa-location-dot"></i> ${evento.lugar}</p><button onclick='abrirModalCotizacion(${JSON.stringify(evento)})' ${esAgotado ? 'disabled' : ''}>${esAgotado ? 'Cupos Agotados' : 'Cotizar Traslado'}</button></div>`;
+                listaEventosContainer.appendChild(tarjeta);
+            });
+        } catch (error) {
+            console.error('Error al cargar los eventos:', error);
+            listaEventosContainer.innerHTML = '<p>Hubo un error al cargar los eventos.</p>';
+        }
+    }
+    
+    function csvToArray(csv) {
+        const lines = csv.split(/\r?\n/); const headers = lines[0].split(','); const data = [];
+        const regex = /,(?=(?:(?:[^"]*"){2})*[^"]*$)/;
+        for (let i = 1; i < lines.length; i++) {
+            if (!lines[i]) continue;
+            const values = lines[i].split(regex);
+            if (values.length === headers.length) {
+                const obj = {};
+                for (let j = 0; j < headers.length; j++) {
+                    let value = values[j] || '';
+                    if (value.startsWith('"') && value.endsWith('"')) { value = value.slice(1, -1); }
+                    obj[headers[j].trim()] = value.trim();
+                }
+                data.push(obj);
+            }
+        }
+        return data;
+    }
+    
     fetchAndRenderEvents();
 });
 </script>
