@@ -42,6 +42,8 @@
                 <article class="servicio-card"><div class="card-contenido"><div class="icono"><i class="fa-solid fa-martini-glass-citrus"></i></div><h5>Evento Social</h5><p>Casamientos, cumpleaños y celebraciones.</p><button onclick="abrirModalCotizacion({ nombre: 'Evento Social' })">Cotizar</button></div></article>
                 <article class="servicio-card"><div class="card-contenido"><div class="icono"><i class="fa-solid fa-briefcase"></i></div><h5>Evento Corporativo</h5><p>Transporte para seminarios y jornadas.</p><button onclick="abrirModalCotizacion({ nombre: 'Evento Corporativo' })">Cotizar</button></div></article>
                 <article class="servicio-card"><div class="card-contenido"><div class="icono"><i class="fa-solid fa-plane-departure"></i></div><h5>Aeropuerto</h5><p>Viajes a Ezeiza, Aeroparque y más.</p><button onclick="abrirModalCotizacion({ nombre: 'Aeropuerto' })">Cotizar</button></div></article>
+                <article class="servicio-card"><div class="card-contenido"><div class="icono"><i class="fa-solid fa-van-shuttle"></i></div><h5>Viaje Privado</h5><p>Alquiler de vehículos con chofer para el destino que necesites.</p><button onclick="abrirModalCotizacion({ nombre: 'Viaje Privado' })">Cotizar</button></div></article>
+                <article class="servicio-card"><div class="card-contenido"><div class="icono"><i class="fa-solid fa-earth-americas"></i></div><h5>Larga Distancia</h5><p>Servicios de larga distancia. Consultá tu próximo destino.</p><button onclick="abrirModalCotizacion({ nombre: 'Larga Distancia' })">Cotizar</button></div></article>
             </div>
         </section>
         <hr>
@@ -87,12 +89,9 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    // --- CONFIGURACIÓN ---
     const telefonoPiombino = "5491123757821";
     const googleSheetEventosUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTGqjcBT-GiILtXal_RQqsBrr7HypTsWgyJT8KgmIBa7YnhjyId1TLsDnj3f-1dMA5BF3Op5PF-wQdN/pub?output=csv';
     const scriptCarteroUrl = 'https://script.google.com/macros/s/AKfycbypOELmoNX5kos7PU5_XsJ9UQp9WdmBFnI_iZDrdh1UpoFcWnvjr14ZOSfeiTSlqfuVFA/exec';
-    
-    // --- LÓGICA DEL FORMULARIO INTELIGENTE ---
     const modal = document.getElementById('modal-cotizacion');
     const form = document.getElementById('cotizacion-form-container');
 
@@ -130,7 +129,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const puntos = Array.from(form.querySelectorAll('input[name="puntos_de_recogida[]"]')).map(input => input.value.trim()).filter(value => value).join(' | ');
         formData.set('puntos_de_recogida', puntos);
         
-        const direccionFinal = formData.get('direccion_evento') || formData.get('evento_lugar');
+        const direccionFinal = formData.get('direccion_destino') || formData.get('evento_lugar');
         formData.set('direccion_destino', direccionFinal);
 
         fetch(scriptCarteroUrl, { method: 'POST', body: formData }).catch(error => console.error("Error:", error));
@@ -146,7 +145,6 @@ document.addEventListener('DOMContentLoaded', () => {
         modal.close();
     });
     
-    // El resto de las funciones no cambian
     window.anadirPuntoRecogida = function() {
         const container = document.getElementById('puntos-recogida-container');
         const nuevoPunto = document.createElement('div');
