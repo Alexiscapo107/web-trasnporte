@@ -42,6 +42,8 @@
                 <article class="servicio-card"><div class="card-contenido"><div class="icono"><i class="fa-solid fa-martini-glass-citrus"></i></div><h5>Evento Social</h5><p>Casamientos, cumpleaños y celebraciones.</p><button onclick="abrirModalCotizacion({ nombre: 'Evento Social' })">Cotizar</button></div></article>
                 <article class="servicio-card"><div class="card-contenido"><div class="icono"><i class="fa-solid fa-briefcase"></i></div><h5>Evento Corporativo</h5><p>Transporte para seminarios y jornadas.</p><button onclick="abrirModalCotizacion({ nombre: 'Evento Corporativo' })">Cotizar</button></div></article>
                 <article class="servicio-card"><div class="card-contenido"><div class="icono"><i class="fa-solid fa-plane-departure"></i></div><h5>Aeropuerto</h5><p>Viajes a Ezeiza, Aeroparque y más.</p><button onclick="abrirModalCotizacion({ nombre: 'Aeropuerto' })">Cotizar</button></div></article>
+                <article class="servicio-card"><div class="card-contenido"><div class="icono"><i class="fa-solid fa-van-shuttle"></i></div><h5>Viaje Privado</h5><p>Alquiler de vehículos con chofer para el destino que necesites.</p><button onclick="abrirModalCotizacion({ nombre: 'Viaje Privado' })">Cotizar</button></div></article>
+                <article class="servicio-card"><div class="card-contenido"><div class="icono"><i class="fa-solid fa-earth-americas"></i></div><h5>Larga Distancia</h5><p>Servicios de larga distancia. Consultá tu próximo destino.</p><button onclick="abrirModalCotizacion({ nombre: 'Larga Distancia' })">Cotizar</button></div></article>
             </div>
         </section>
         <hr>
@@ -128,29 +130,13 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         const formData = new FormData(form);
         const puntos = Array.from(form.querySelectorAll('input[name="puntos_de_recogida[]"]')).map(input => input.value.trim()).filter(value => value).join(' | ');
-        const direccionFinal = formData.get('direccion_evento') || formData.get('evento_lugar');
+        formData.set('puntos_de_recogida', puntos);
         
-        // --- CONSTRUCCIÓN DEL STRING EN EL ORDEN SOLICITADO ---
-        const dataString = [
-            formData.get('servicio_nombre'),    // values[0]
-            formData.get('nombre_cliente'),     // values[1]
-            formData.get('pasajeros_totales'),  // values[2]
-            puntos,                             // values[3]
-            formData.get('tipo_viaje') || '',   // values[4]
-            formData.get('fecha_hora_salida') || '', // values[5]
-            formData.get('fecha_hora_regreso') || '', // values[6]
-            direccionFinal || '',               // values[7]
-            formData.get('detalles') || ''      // values[8]
-        ].join(';'); // Unimos todo con punto y coma
+        const direccionFinal = formData.get('direccion_destino') || formData.get('evento_lugar');
+        formData.set('direccion_destino', direccionFinal);
 
-        // Enviamos el string como texto plano
-        fetch(scriptCarteroUrl, { 
-            method: 'POST', 
-            headers: { 'Content-Type': 'text/plain' },
-            body: dataString 
-        }).catch(error => console.error("Error al enviar a la planilla:", error));
+        fetch(scriptCarteroUrl, { method: 'POST', body: formData }).catch(error => console.error("Error al enviar a la planilla:", error));
         
-        // El mensaje de WhatsApp no cambia
         let msg = `¡Hola! Quisiera cotizar un servicio de *${formData.get('servicio_nombre')}*.\n- Cliente: ${formData.get('nombre_cliente')}\n- Pasajeros: ${formData.get('pasajeros_totales')}\n`;
         if (formData.get('tipo_viaje')) msg += `- Tipo de Viaje: ${formData.get('tipo_viaje')}\n`;
         if (direccionFinal) msg += `- Destino: ${direccionFinal}\n`;
@@ -162,13 +148,13 @@ document.addEventListener('DOMContentLoaded', () => {
         modal.close();
     });
     
-    // --- El resto de las funciones no cambian ---
+    // --- FUNCIONES AUXILIARES Y DE INICIALIZACIÓN ---
     window.anadirPuntoRecogida = function() {
         const container = document.getElementById('puntos-recogida-container');
         const nuevoPunto = document.createElement('div');
         nuevoPunto.className = 'punto-recogida';
         nuevoPunto.innerHTML = `<input type="text" name="puntos_de_recogida[]" placeholder="Siguiente dirección"><button type="button" class="secondary" onclick="this.parentElement.remove()">-</button>`;
-    };
+    }
     
     async function fetchAndRenderEvents() {
         const listaEventosContainer = document.getElementById('eventos-lista');
