@@ -89,12 +89,16 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
+    // --- CONFIGURACIÓN ---
     const telefonoPiombino = "5491123757821";
     const googleSheetEventosUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTGqjcBT-GiILtXal_RQqsBrr7HypTsWgyJT8KgmIBa7YnhjyId1TLsDnj3f-1dMA5BF3Op5PF-wQdN/pub?output=csv';
     const scriptCarteroUrl = 'https://script.google.com/macros/s/AKfycbypOELmoNX5kos7PU5_XsJ9UQp9WdmBFnI_iZDrdh1UpoFcWnvjr14ZOSfeiTSlqfuVFA/exec';
+    
+    // --- ELEMENTOS DEL DOM ---
     const modal = document.getElementById('modal-cotizacion');
     const form = document.getElementById('cotizacion-form-container');
 
+    // --- FUNCIONES ---
     window.abrirModalCotizacion = function(evento) {
         form.reset();
         document.getElementById('puntos-recogida-container').innerHTML = '<div class="punto-recogida"><input type="text" name="puntos_de_recogida[]" placeholder="Dirección del primer punto" required></div>';
@@ -132,7 +136,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const direccionFinal = formData.get('direccion_destino') || formData.get('evento_lugar');
         formData.set('direccion_destino', direccionFinal);
 
-        fetch(scriptCarteroUrl, { method: 'POST', body: formData }).catch(error => console.error("Error:", error));
+        fetch(scriptCarteroUrl, { method: 'POST', body: formData }).catch(error => console.error("Error al enviar a la planilla:", error));
         
         let msg = `¡Hola! Quisiera cotizar un servicio de *${formData.get('servicio_nombre')}*.\n- Cliente: ${formData.get('nombre_cliente')}\n- Pasajeros: ${formData.get('pasajeros_totales')}\n`;
         if (formData.get('tipo_viaje')) msg += `- Tipo de Viaje: ${formData.get('tipo_viaje')}\n`;
